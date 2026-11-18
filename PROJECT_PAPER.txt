@@ -1,0 +1,154 @@
+         Data Structures Lab Project Paper — CSE 2103
+                                                   Group – C
+ID:
+252311282
+252311284
+252311285
+
+                 Smart Library Management System
+Project Title: Smart Library Management System Using Array, Linked List, Stack and Queue.
+Objective:
+• To develop a console-based library system using core data structures in C++.
+• To manage books through an array.
+• To maintain borrow/return history using a singly linked list.
+• To keep recently returned books using a stack.
+• To manage waiting borrow requests using a queue.
+• To demonstrate insertion, deletion, searching, updating, traversal, overflow, underflow and not-found handling.
+• To analyze the time and space complexity of the implemented operations.
+ Problem Statement
+A library needs a simple system to store book information, search books, add or delete books, borrow and return books, maintain transaction history, and handle waiting requests when a book is unavailable. A single data structure is not equally suitable for all of these tasks. Therefore, the project combines an array, linked list, stack and queue so that each operation follows an appropriate data-structure model. The project follows the course requirement that the core structures are implemented by the group instead of using ready-made STL containers. The supplied project guideline specifically requires data-structure-based projects, implementation of the core structures, main operations, edge-case handling and complexity analysis.
+Data Structures Used and Justification :
+Array — Book Catalogue
+An array stores the main book records in contiguous memory. It is simple and suitable for a bounded catalogue. It supports traversal and direct index access efficiently.
+Singly Linked List — Borrow/Return History
+A linked list is suitable for a growing transaction history because a new record can be inserted without shifting existing records. Each node stores book ID, title, action and a pointer to the next node.
+Stack — Recently Returned Books
+A stack follows LIFO (Last In, First Out). The most recently returned book is kept at the top, so push and pop naturally represent recent-return operations.
+Circular Queue — Waiting Borrow Requests
+A queue follows FIFO (First In, First Out). Borrow requests are processed in the order they were received. A circular array queue uses memory efficiently and demonstrates overflow and underflow handling. These structures directly match the project requirement to use one or more core data structures and justify their selection. 
+Main Operations
+Array:
+         • Add/Insert Book
+         • Delete Book
+         • Search Book
+         • Update status
+         • Traverse/Display all books
+Linked List:
+         • Insert history node
+         • Traverse history
+         • Handle empty history
+Stack:
+         • Push returned-book ID
+         • Pop recent return
+         • Display stack
+         • Stack overflow/underflow
+Queue:
+         • Enqueue waiting request
+         • Dequeue/process request
+     • Display/track pending requests
+     • Queue overflow/underflow
+The system also handles book-not-found cases and a full catalogue. These edge cases are included because the project guideline requires operations and handling of empty, full, overflow/underflow and not-found conditions.
+Complexity Analysis
+Operation Data Structure Time Extra Space
+Search book Array O(n) O(1)
+Delete book Array O(n) O(1)
+Display books Array O(n) O(1)
+Add history Linked List O(1) O(1) per node
+Display history Linked List O(n) O(1)
+Push return Stack O(1) O(1)
+Pop return Stack O(1) O(1)
+Enqueue request Circular Queue O(1) O(1)
+Dequeue request Circular Queue O(1) O(1)
+ System Design / Flow
+Start
+Display Main Menu
+User selects an operation
+Add/Delete/Search/Display Array module
+Borrow/Return Array + Linked List
+Waiting request Queue
+Recent return Stack
+Check edge cases
+Show result
+Return to Main Menu
+Exit
+Data flow:
+Book Catalogue (Array) Borrow/Return  Transaction History (Linked List)
+Recent Returns (Stack)
+Unavailable Book , Waiting Request (Queue) , Process Request , Book Catalogue
+Implementation Details
+Programming Language: C++
+Programming Style: Console-based menu-driven application
+Core implementation: Custom array, custom linked list, custom stack and custom circular queue
+No STL vector/list/stack/queue/map/set/priority_queue is used for the core structures.
+Major modules/functions:
+• addBook(), deleteBook(), searchBook(), displayBooks()
+• borrowBook(), returnBook()
+• addHistory(), showHistory()
+• pushReturn(), popReturn(), showStack()
+• enqueueRequest(), dequeueRequest(), processRequest()
+• main() for menu control
+The project guideline states that the core data structures must be implemented by the group and that ready-made STL containers must not be used for the core structure. 
+Sample Test Cases and Output
+Test Case 1 — Add and Search
+Input:
+1
+101
+Data Structures
+Seymour Lipschutz
+3
+101
+Expected output:
+Book added successfully.
+ID: 101
+Title: Data Structures
+Author: Seymour Lipschutz
+Status: Available
+Test Case 2 — Borrow and Return
+Input:
+5 Book ID 101
+6 Book ID 101
+Expected output:
+Book borrowed successfully.
+Book returned successfully.
+Test Case 3 — Unavailable Book
+Input:
+5 Book ID 101
+5 Book ID 101
+Expected output:
+Book borrowed successfully.
+Book is already borrowed. Request added to queue.
+Test Case 4 — Stack
+After returning book 101:
+9
+Expected output:
+Return stack (top to bottom): 101
+Test Case 5 — Empty/Underflow
+10 when the stack is empty.
+Expected output:
+Stack Underflow!
+Test Case 6 — Not Found
+Search for ID 999.
+Expected output:
+Book not found.
+ Advantages
+• Demonstrates four important data structures in one practical application.
+• Easy to operate through a menu-driven interface.
+• Clearly separates each data structure according to its purpose.
+• Includes edge-case handling.
+• Suitable for live demonstration and viva.
+• Can be extended with student accounts, fine calculation, login, file storage and a GUI.
+Current limitations:
+• Data is stored in memory and is lost when the program closes.
+• The catalogue has a fixed maximum size.
+• The interface is console-based.
+Future improvements:
+• Add file handling or a database for permanent storage.
+• Add student/member records.
+• Add due dates and fine calculation.
+• Add login and role-based access.
+• Add a GUI.
+• Add sorting by title, author or ID.
+• Add more advanced structures such as BST or hash table for faster searching.
+The project guideline notes that GUI is optional but appreciated, so a GUI can be added as a bonus improvement.
+Conclusion
+The Smart Library Management System demonstrates how different data structures can be combined to solve a real-life problem. The array manages the main book catalogue, the linked list stores transaction history, the stack handles recent returns, and the queue manages waiting requests. The project therefore demonstrates both practical application and algorithmic understanding. The implementation follows the supplied CSE 2103 project requirements for a data-structure-oriented solution, custom core structures, operations, edge-case handling, complexity analysis, system design, testing and conclusion.

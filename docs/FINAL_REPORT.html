@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Library Management System — Final Project Report (CSE 2103 Group C)</title>
+  <style>
+    @page { size: A4; margin: 11mm 14mm; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #0f172a;
+      line-height: 1.42;
+      font-size: 9.5pt;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .cover {
+      border-bottom: 3px solid #0284c7;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    .cover .course { font-size: 10pt; font-weight: 700; color: #0284c7; text-transform: uppercase; letter-spacing: 0.06em; }
+    .cover h1 { font-size: 20pt; margin: 6px 0 8px 0; color: #0f172a; }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px 20px;
+      font-size: 9.5pt;
+      color: #334155;
+    }
+    h2 {
+      font-size: 12.5pt;
+      color: #0369a1;
+      border-bottom: 1px solid #cbd5e1;
+      padding-bottom: 3px;
+      margin-top: 14px;
+      margin-bottom: 8px;
+      page-break-after: avoid;
+    }
+    h3 { font-size: 11pt; color: #1e293b; margin: 12px 0 6px 0; page-break-after: avoid; }
+    p { margin: 0 0 6px 0; }
+    ul { margin: 2px 0 6px 18px; }
+    li { margin-bottom: 3px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 10px 0;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 4.5px 7px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f1f5f9; font-weight: 700; color: #0f172a; }
+    code, pre {
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 8.8pt;
+      background: #f8fafc;
+    }
+    pre {
+      border: 1px solid #cbd5e1;
+      border-left: 4px solid #0284c7;
+      padding: 7px 10px;
+      white-space: pre-wrap;
+      border-radius: 4px;
+      page-break-inside: avoid;
+      font-size: 8.3pt;
+      line-height: 1.38;
+    }
+    .diagram-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px;
+      background: #ffffff;
+      text-align: center;
+      margin: 8px 0 10px 0;
+      page-break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <div class="course">CSE 2103 — Data Structures Lab Project Report</div>
+    <h1>Smart Library Management System</h1>
+    <p><strong>Subtitle:</strong> Manual Implementation Using Bounded Array, Singly Linked List, Stack, and Circular Queue in C++17</p>
+    <div class="meta-grid">
+      <div><strong>Group:</strong> Group C</div>
+      <div><strong>Student IDs:</strong> 252311282, 252311284, 252311285</div>
+      <div><strong>Member Names:</strong> [Insert Member Names]</div>
+      <div><strong>Date:</strong> 2026-11-18</div>
+    </div>
+  </div>
+
+  <h2>1. Objective &amp; Problem Statement</h2>
+  <p>
+    A library management workflow requires distinct operational guarantees across four domains: (1) a fixed-capacity inventory supporting fast lookup and contiguous iteration, (2) a chronological transaction audit trail that grows dynamically without element shifting, (3) a recently returned books desk following Last-In, First-Out (LIFO) order, and (4) a fair waiting request line following First-In, First-Out (FIFO) order when books are unavailable.
+  </p>
+  <p>
+    Per the official CSE 2103 rubric, all core structures are implemented manually in C++17 without ready-made STL container substitutes (<code>std::vector</code>, <code>std::list</code>, <code>std::stack</code>, <code>std::queue</code>, <code>std::map</code>, <code>std::set</code>) or <code>&lt;algorithm&gt;</code> helpers. Each structure implements insert, delete, search, update, and traversal along with empty, full, overflow, underflow, duplicate, and not-found handling.
+  </p>
+
+  <h2>2. Data Structures Selection &amp; Alternatives</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Module</th>
+        <th>Chosen Structure</th>
+        <th>Alternatives Considered</th>
+        <th>Justification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>BookCatalogue</code></td>
+        <td>Bounded Raw Array (<code>Book*</code>)</td>
+        <td>Linked List, BST, Hash Table</td>
+        <td>Contiguous memory layout for bounded inventory (default 100), direct index inspection, and explicit left-shift deletion invariant <code>[0, count)</code>.</td>
+      </tr>
+      <tr>
+        <td><code>HistoryList</code></td>
+        <td>Singly Linked List (<code>head</code> &amp; <code>tail</code>)</td>
+        <td>Dynamic Array, Doubly Linked List</td>
+        <td>O(1) chronological tail append without array resizing or shifting; tracks monotonic 64-bit transaction IDs and supports safe head/middle/tail deletion.</td>
+      </tr>
+      <tr>
+        <td><code>ReturnStack</code></td>
+        <td>Bounded Array Stack (<code>int*</code>)</td>
+        <td>Linked Stack</td>
+        <td>Zero per-push heap allocation, O(1) LIFO push/pop, explicit stack overflow/underflow demonstration, and top-relative offset search/update.</td>
+      </tr>
+      <tr>
+        <td><code>RequestQueue</code></td>
+        <td>Circular Array Queue (<code>int*</code>)</td>
+        <td>Linear Array Queue, Linked Queue</td>
+        <td>Reuses vacated front slots in O(1) via <code>(front + count) % capacity</code>. Tracking <code>count</code> distinguishes full vs. empty cleanly even at <code>capacity = 1</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>3. Operations &amp; Complexity Analysis</h2>
+  <p>Let <em>n</em> = active books, <em>h</em> = history nodes, <em>s</em> = stack items, <em>q</em> = queue items, and <em>B, S, Q</em> = capacities (default 100).</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Structure / Module</th>
+        <th>Operation</th>
+        <th>Time Complexity</th>
+        <th>Extra Space</th>
+        <th>Justification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>BookCatalogue</code></td><td><code>add</code></td><td>O(n)</td><td>O(1)</td><td>Linear uniqueness scan across active IDs + O(1) tail placement.</td></tr>
+      <tr><td><code>BookCatalogue</code></td><td><code>remove</code></td><td>O(n)</td><td>O(1)</td><td>Linear search + left-shift of trailing elements to preserve density.</td></tr>
+      <tr><td><code>BookCatalogue</code></td><td><code>find</code> / <code>editMetadata</code> / <code>traverse</code></td><td>O(n)</td><td>O(1)</td><td>Sequential scan across occupied prefix <code>[0, m_count)</code>.</td></tr>
+      <tr><td><code>HistoryList</code></td><td><code>append</code> / <code>commitAppend</code></td><td>O(1)</td><td>O(1) per node</td><td>Direct insertion at <code>m_tail</code> pointer without traversing.</td></tr>
+      <tr><td><code>HistoryList</code></td><td><code>find</code> / <code>update</code> / <code>remove</code> / <code>traverse</code></td><td>O(h)</td><td>O(1)</td><td>Single linked traversal from <code>m_head</code>; updates <code>m_tail</code> on tail removal.</td></tr>
+      <tr><td><code>ReturnStack</code></td><td><code>push</code> / <code>pop</code> / <code>peek</code> / <code>updateAt</code></td><td>O(1)</td><td>O(1)</td><td>Direct array indexing at <code>(m_count - 1 - topOffset)</code>.</td></tr>
+      <tr><td><code>RequestQueue</code></td><td><code>enqueue</code> / <code>dequeue</code> / <code>peek</code> / <code>updateAt</code></td><td>O(1)</td><td>O(1)</td><td>Circular modulo indexing <code>(m_front + offset) % m_capacity</code>.</td></tr>
+      <tr><td><code>LibraryManager</code></td><td><code>borrowBook</code> / <code>returnBook</code> / <code>processNextRequest</code></td><td>O(n)</td><td>O(1)</td><td>Catalogue lookup O(n) + O(1) pre-allocated history/stack/queue commit.</td></tr>
+      <tr><td><code>LibraryManager</code></td><td><code>deleteBook</code></td><td>O(n + q)</td><td>O(1)</td><td>Blocks deletion if borrowed O(n) or present in waiting queue O(q).</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Total Space Complexity:</strong> O(B + S + Q + h) plus stored book/history string lengths.</p>
+
+  <h2>4. System Architecture &amp; Flowchart</h2>
+  <div class="diagram-box">
+    <svg viewBox="0 0 760 220" width="100%" height="165" xmlns="http://www.w3.org/2000/svg" style="font-family: Segoe UI, sans-serif; font-size: 11px;">
+      <rect x="20" y="18" width="150" height="44" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+      <text x="95" y="37" text-anchor="middle" font-weight="700" fill="#0c4a6e">ConsoleUI</text>
+      <text x="95" y="52" text-anchor="middle" fill="#0369a1">Menu 0..15 / Submenu</text>
+
+      <rect x="20" y="95" width="150" height="44" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="95" y="114" text-anchor="middle" font-weight="700" fill="#4c1d95">Optional Web GUI</text>
+      <text x="95" y="129" text-anchor="middle" fill="#5b21b6">127.0.0.1 HTTP/JSON</text>
+
+      <rect x="245" y="55" width="190" height="54" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.8"/>
+      <text x="340" y="78" text-anchor="middle" font-weight="700" fill="#78350f">LibraryManager</text>
+      <text x="340" y="95" text-anchor="middle" fill="#92400e">Atomic Coordination &amp; Rules</text>
+
+      <rect x="515" y="10" width="220" height="40" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="625" y="28" text-anchor="middle" font-weight="700" fill="#14532d">BookCatalogue (Array)</text>
+      <text x="625" y="42" text-anchor="middle" fill="#166534">Bounded Book* [0..count)</text>
+
+      <rect x="515" y="62" width="220" height="40" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="625" y="80" text-anchor="middle" font-weight="700" fill="#14532d">HistoryList (Linked List)</text>
+      <text x="625" y="94" text-anchor="middle" fill="#166534">head -&gt; ... -&gt; tail -&gt; NULL</text>
+
+      <rect x="515" y="114" width="220" height="40" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="625" y="132" text-anchor="middle" font-weight="700" fill="#14532d">ReturnStack (LIFO Array)</text>
+      <text x="625" y="146" text-anchor="middle" fill="#166534">Bounded int* top = count - 1</text>
+
+      <rect x="515" y="166" width="220" height="40" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="625" y="184" text-anchor="middle" font-weight="700" fill="#14532d">RequestQueue (Circular FIFO)</text>
+      <text x="625" y="198" text-anchor="middle" fill="#166534">rear = (front + count) % cap</text>
+
+      <line x1="170" y1="40" x2="245" y2="74" stroke="#475569" stroke-width="1.5"/>
+      <line x1="170" y1="117" x2="245" y2="90" stroke="#475569" stroke-width="1.5"/>
+      <line x1="435" y1="70" x2="515" y2="30" stroke="#475569" stroke-width="1.5"/>
+      <line x1="435" y1="78" x2="515" y2="82" stroke="#475569" stroke-width="1.5"/>
+      <line x1="435" y1="86" x2="515" y2="134" stroke="#475569" stroke-width="1.5"/>
+      <line x1="435" y1="95" x2="515" y2="186" stroke="#475569" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <h2>5. Implementation &amp; Failure Atomicity</h2>
+  <ul>
+    <li><strong>Modules:</strong> <code>Book.hpp</code>, <code>BookCatalogue.{hpp,cpp}</code>, <code>HistoryList.{hpp,cpp}</code>, <code>ReturnStack.{hpp,cpp}</code>, <code>RequestQueue.{hpp,cpp}</code>, <code>LibraryManager.{hpp,cpp}</code>, <code>ConsoleUI.{hpp,cpp}</code>, and optional GUI adapter <code>JsonApiAdapter.{hpp,cpp}</code> + <code>HttpServer.{hpp,cpp}</code>.</li>
+    <li><strong>Failure Atomicity:</strong> <code>borrowBook</code>, <code>returnBook</code>, and <code>processNextRequest</code> pre-allocate a <code>HistoryList::PendingNode</code> before mutating catalogue status, stack, or queue, committing the node via <code>noexcept</code> linkage only after preconditions pass.</li>
+    <li><strong>Input Hardening:</strong> <code>ConsoleUI</code> parses whole lines via <code>std::getline</code> and strict integer conversion, preventing infinite loops on malformed input, integer overflow, or EOF.</li>
+  </ul>
+
+  <h2>6. Verified Execution &amp; Test Results</h2>
+  <p>
+    Built with MinGW-w64 G++ 16.2.0 (<code>-std=c++17 -Wall -Wextra -Wpedantic</code>), CMake 4.4.4, Ninja 1.13.2. Static analysis via <code>cppcheck</code> produced <strong>0 errors and 0 warnings</strong> across all 10 source files.
+  </p>
+  <pre>Test project C:/Users/sifat/OneDrive/Desktop/SmartLibrary/SmartLibrary/build-release
+  1/5 Test #1: CatalogueTests ...................   Passed    0.03 sec  (76 / 76 assertions)
+  2/5 Test #2: StructureTests ...................   Passed    0.03 sec  (76 / 76 assertions)
+  3/5 Test #3: ManagerTests .....................   Passed    0.03 sec  (48 / 48 assertions)
+  4/5 Test #4: ConsoleTests .....................   Passed    0.03 sec  (15 / 15 assertions)
+  5/5 Test #5: GuiParityTests ...................   Passed    0.03 sec  (14 / 14 assertions)
+100% tests passed out of 5 (Total: 229 / 229 assertions passed; T01-T38 verified)</pre>
+
+  <h3>Sample Console Session Output (<code>smartlibrary.exe</code>)</h3>
+  <pre>Enter choice: 1 | ID: 101 | Title: Data Structures | Author: Seymour Lipschutz
+Book added successfully.
+Enter choice: 3 | ID: 101 -&gt; Status: Available
+Enter choice: 5 | ID: 101 -&gt; Book borrowed successfully. (TxID: 1)
+Enter choice: 5 | ID: 101 -&gt; Book is already borrowed. Request added to queue.
+Enter choice: 11 -&gt; Waiting request queue (front to rear): 101
+Enter choice: 6 | ID: 101 -&gt; Book returned successfully. (TxID: 2)
+Enter choice: 9 -&gt; Return stack (top to bottom): 101
+Enter choice: 8 -&gt; Processed waiting request for Book ID 101. Book borrowed successfully. (TxID: 3)
+Enter choice: 7 -&gt; [TxID: 1] 101 BORROW | [TxID: 2] 101 RETURN | [TxID: 3] 101 BORROW
+Enter choice: 10 -&gt; Popped Book ID 101 from return stack.
+Enter choice: 10 -&gt; Stack Underflow!
+Enter choice: 3 | ID: 999 -&gt; Book not found.</pre>
+
+  <h2>7. Limitations &amp; Conclusion</h2>
+  <p>
+    <strong>Limitations:</strong> All records reside in volatile memory (no file/DB persistence); array capacities default to 100 entries; no student accounts, due dates, or fines are modeled per course scope.
+  </p>
+  <p>
+    <strong>Conclusion:</strong> The Smart Library Management System cleanly integrates four manual C++17 data structures with verified O(1)/O(n)/O(h) bounds, failure atomicity, console robustness, and an optional loopback web visualizer sharing the identical engine.
+  </p>
+
+  <h2>8. References</h2>
+  <ul>
+    <li>CSE 2103 Official Project Guidelines &amp; Marking Rubric (<code>references/Data Structures Lab Project — CSE 2103.pdf</code>).</li>
+    <li>Group C Project Proposal Paper (<code>references/Data Structures Lab Project Paper — CSE 2103. Group--C.docx</code>).</li>
+  </ul>
+</body>
+</html>

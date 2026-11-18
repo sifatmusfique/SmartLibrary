@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLibrary · CSE 2103 Live Data Structures Engine</title>
+  <style>
+    :root {
+      --bg: #060a14;
+      --bg-grad: radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.12), transparent 36%),
+                 radial-gradient(circle at 88% 12%, rgba(167, 139, 250, 0.10), transparent 34%);
+      --surface: rgba(15, 23, 42, 0.88);
+      --surface-solid: #0f172a;
+      --surface-alt: #172236;
+      --surface-hover: #1e2d47;
+      --border: rgba(148, 163, 184, 0.16);
+      --border-strong: rgba(148, 163, 184, 0.28);
+      --text: #f8fafc;
+      --text-soft: #cbd5e1;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.14);
+      --ok: #22c55e;
+      --ok-soft: rgba(34, 197, 94, 0.14);
+      --warn: #f59e0b;
+      --warn-soft: rgba(245, 158, 11, 0.14);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.14);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.14);
+      --radius: 12px;
+      --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.65);
+      --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      background-image: var(--bg-grad);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 22px 24px 42px;
+    }
+
+    .container { max-width: 1440px; margin: 0 auto; }
+
+    /* Header */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #0284c7, #6366f1);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35);
+      flex-shrink: 0;
+    }
+    .brand h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .brand .subtitle { font-size: 0.84rem; color: var(--muted); margin-top: 2px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 8px var(--ok);
+    }
+
+    /* Status Toast Bar */
+    .status-banner {
+      padding: 11px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .status-banner.ok { border-color: rgba(34, 197, 94, 0.45); background: rgba(20, 83, 45, 0.26); color: #dcfce7; }
+    .status-banner.err { border-color: rgba(239, 68, 68, 0.5); background: rgba(127, 29, 29, 0.28); color: #fee2e2; }
+    .status-pill {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      padding: 2px 9px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    /* KPI Strip */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 960px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+    .kpi-value { font-size: 1.55rem; font-weight: 700; margin: 4px 0 6px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 8px; }
+    .kpi-sub { font-size: 0.76rem; color: var(--muted); font-family: var(--mono); }
+    .progress-track { height: 5px; background: var(--surface-alt); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; border-radius: 999px; transition: width 0.25s ease; }
+
+    /* Cards & Controls */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .card-title { font-size: 0.98rem; font-weight: 650; display: flex; align-items: center; gap: 8px; }
+    .complexity-tag {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    form.inline-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    input, select {
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 11px;
+      font-size: 0.86rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+    }
+    input.id-input { width: 92px; }
+    input.grow { flex: 1; min-width: 130px; }
+
+    button {
+      background: var(--accent);
+      color: #082f49;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 13px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.06s;
+      white-space: nowrap;
+    }
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: translateY(1px); }
+    button.secondary { background: var(--surface-alt); color: var(--text-soft); border: 1px solid var(--border-strong); }
+    button.secondary:hover { background: var(--surface-hover); }
+    button.ok { background: var(--ok); color: #052e16; }
+    button.warn { background: var(--warn); color: #451a03; }
+    button.danger { background: var(--danger); color: #fff; }
+    button.ghost { background: transparent; color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.35); }
+    button.sm { padding: 4px 9px; font-size: 0.77rem; border-radius: 6px; }
+
+    /* Main Workspace Grid */
+    .structures-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 1050px) { .structures-grid { grid-template-columns: 1fr; } }
+
+    .table-wrap { overflow-x: auto; max-height: 410px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      position: sticky;
+      top: 0;
+      background: var(--surface-solid);
+      z-index: 1;
+    }
+    tr:hover td { background: rgba(30, 41, 59, 0.45); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+    .pill.avail { background: var(--ok-soft); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .pill.borrowed { background: var(--warn-soft); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .idx-chip {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 5px;
+      color: var(--accent);
+    }
+
+    /* Stack & Queue Visualizers */
+    .stack-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .slot-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: var(--mono);
+      font-size: 0.83rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .slot-box.top {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.08);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+    .slot-box.highlight {
+      border-color: var(--warn);
+      background: var(--warn-soft);
+    }
+
+    .queue-visual-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .queue-ring-box {
+      width: 148px;
+      height: 148px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px;
+    }
+    .queue-chain {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    /* Singly Linked List */
+    .node-chain {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px;
+      padding: 4px 0;
+    }
+    .ll-node {
+      background: var(--surface-alt);
+      border: 1px solid rgba(167, 139, 250, 0.45);
+      border-radius: 9px;
+      padding: 8px 12px;
+      font-size: 0.81rem;
+      min-width: 155px;
+      transition: transform 0.12s, border-color 0.2s;
+    }
+    .ll-node:hover { transform: translateY(-1px); border-color: var(--purple); }
+    .ll-node.highlight { border-color: var(--warn); background: var(--warn-soft); }
+    .ll-node .tx-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      margin-bottom: 3px;
+    }
+    .tx-id { color: var(--purple); font-weight: 700; }
+    .act-tag { padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
+    .act-borrow { background: var(--warn-soft); color: #fde68a; }
+    .act-return { background: var(--ok-soft); color: #86efac; }
+    .arrow { color: var(--muted); font-family: var(--mono); font-weight: 700; font-size: 0.85rem; }
+    .ptr-badge {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: var(--purple-soft);
+      color: var(--purple);
+      border: 1px solid rgba(167, 139, 250, 0.35);
+    }
+
+    .empty-msg { color: var(--muted); font-size: 0.85rem; font-style: italic; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+    /* Bottom Tabs: Maintenance + Event Log */
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 1050px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+    details.panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+    details.panel summary {
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 0.94rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+    }
+    details.panel summary::-webkit-details-marker { display: none; }
+    .maint-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .maint-row {
+      background: rgba(23, 34, 54, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .maint-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
+
+    .log-feed {
+      max-height: 240px;
+      overflow-y: auto;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .log-entry {
+      padding: 6px 9px;
+      border-radius: 6px;
+      background: var(--surface-alt);
+      border-left: 3px solid var(--accent);
+      color: var(--text-soft);
+    }
+    .log-entry.err { border-left-color: var(--danger); color: #fecaca; }
+    .log-entry.ok { border-left-color: var(--ok); }
+
+    /* Modal for inline book metadata editing */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(4px);
+      display: none;
+      place-items: center;
+      z-index: 50;
+      padding: 16px;
+    }
+    .modal-backdrop.open { display: grid; }
+    .modal {
+      background: var(--surface-solid);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 20px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+    }
+    .modal h3 { margin-bottom: 12px; font-size: 1.05rem; }
+    .modal-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .modal-fields label { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 4px; }
+    .modal-fields input { width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">SL</div>
+        <div>
+          <h1>
+            Smart Library Management System
+            <span class="badge"><span class="live-dot"></span> C++17 Live Engine</span>
+          </h1>
+          <p class="subtitle">CSE 2103 Group C · Bounded Array · Singly Linked List · LIFO Stack · Circular FIFO Queue</p>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="ghost" id="btn-seed-demo" type="button">Load Viva Demo Dataset</button>
+        <button class="secondary" id="btn-seed" type="button">+ Sample Book 101</button>
+        <button class="secondary" id="btn-refresh" type="button">Sync State</button>
+      </div>
+    </header>
+
+    <div id="status-banner" class="status-banner" role="status">
+      <span id="status-text">Connected to authoritative C++ LibraryManager on loopback HTTP adapter.</span>
+      <span id="status-code" class="status-pill">READY</span>
+    </div>
+
+    <!-- KPI Telemetry Strip -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Catalogue Array</div>
+        <div class="kpi-value"><span id="kpi-cat">0</span><span class="kpi-sub" id="kpi-cat-cap">/ 100</span></div>
+        <div class="kpi-sub" id="kpi-avail">0 available · 0 borrowed</div>
+        <div class="progress-track"><div id="bar-cat" class="progress-fill" style="width:0%;background:var(--accent);"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Recent Returns Stack</div>
+        <div class="kpi-value"><span id="kpi-stack">0</span><span class="kpi-sub" id="kpi-stack-cap">/ 100</span></div>
+        <div class="kpi-sub" id="kpi-stack-top">Top: empty</div>
+        <div class="progress-track"><div id="bar-stack" class="progress-fill" style="width:0%;background:var(--ok);"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Circular Request Queue</div>
+        <div class="kpi-value"><span id="kpi-queue">0</span><span class="kpi-sub" id="kpi-queue-cap">/ 100</span></div>
+        <div class="kpi-sub" id="kpi-queue-ptr">front=0 · rear=0</div>
+        <div class="progress-track"><div id="bar-queue" class="progress-fill" style="width:0%;background:var(--warn);"></div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">History Linked List</div>
+        <div class="kpi-value"><span id="kpi-hist">0</span><span class="kpi-sub">nodes</span></div>
+        <div class="kpi-sub" id="kpi-hist-tx">nextTxId = 1</div>
+        <div class="progress-track"><div id="bar-hist" class="progress-fill" style="width:100%;background:var(--purple);opacity:0.45;"></div></div>
+      </div>
+    </section>
+
+    <!-- Primary Controls -->
+    <section class="controls-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Add Book to Catalogue</span>
+          <span class="complexity-tag">Array Insert · O(n)</span>
+        </div>
+        <form id="form-add" class="inline-form">
+          <input id="add-id" class="id-input" type="number" min="1" placeholder="ID (101)" required />
+          <input id="add-title" class="grow" type="text" placeholder="Book Title" required />
+          <input id="add-author" class="grow" type="text" placeholder="Author Name" required />
+          <button type="submit">Add Book</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Search &amp; Circulation Control</span>
+          <span class="complexity-tag">Atomic · O(n)</span>
+        </div>
+        <form id="form-circ" class="inline-form">
+          <input id="circ-id" class="id-input" type="number" min="1" placeholder="Book ID" required />
+          <button type="button" id="btn-search" class="secondary">Search ID</button>
+          <button type="button" id="btn-borrow" class="ok">Borrow / Queue</button>
+          <button type="button" id="btn-return" class="warn">Return</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Main Structures Workspace -->
+    <section class="structures-grid">
+      <!-- 1. Catalogue Table -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">1. Book Catalogue (Bounded Array)</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="cat-filter" type="search" placeholder="Filter ID, title, author..." style="padding:5px 9px;font-size:0.8rem;width:185px;" />
+            <span id="cat-meta" class="complexity-tag">0 / 100</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Slot</th>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cat-body">
+              <tr><td colspan="6" class="empty-msg">Catalogue is empty. Add a book or load the Viva Demo Dataset.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2 & 3. Stack and Circular Queue -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">2. Recent Returns Stack (LIFO)</span>
+            <span id="stack-meta" class="complexity-tag">Push/Pop · O(1)</span>
+          </div>
+          <div id="stack-view" class="stack-list">
+            <span class="empty-msg">Return stack is empty.</span>
+          </div>
+          <div class="btn-row">
+            <button id="btn-pop-stack" class="secondary sm" type="button">Pop Top Return</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">3. Waiting Request Queue (Circular FIFO)</span>
+            <span id="queue-meta" class="complexity-tag">front=0 · O(1)</span>
+          </div>
+          <div class="queue-visual-row">
+            <div class="queue-ring-box">
+              <svg id="queue-ring-svg" viewBox="0 0 140 140" width="134" height="134" aria-label="Circular Queue Ring"></svg>
+            </div>
+            <div id="queue-view" class="queue-chain">
+              <span class="empty-msg">Waiting request queue is empty.</span>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="btn-process-queue" class="ok sm" type="button">Process FIFO Head</button>
+            <button id="btn-cancel-queue" class="danger sm" type="button">Cancel Head Request</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Singly Linked History -->
+    <section class="card" style="margin-bottom:18px;">
+      <div class="card-header">
+        <span class="card-title">4. Borrow / Return History (Singly Linked List)</span>
+        <span id="hist-meta" class="complexity-tag">Tail Append · O(1) | Traverse · O(h)</span>
+      </div>
+      <div id="hist-view" class="node-chain">
+        <span class="ptr-badge">HEAD</span>
+        <span class="arrow">──▶</span>
+        <span class="ptr-badge">NULL</span>
+      </div>
+    </section>
+
+    <!-- Bottom Maintenance & Live Audit Log -->
+    <section class="bottom-grid">
+      <details class="panel" open>
+        <summary>
+          <span style="color:var(--warn);">Educational Maintenance Console (Submenu 14 Parity)</span>
+          <span class="complexity-tag">Log &amp; Offset Inspection</span>
+        </summary>
+        <div class="maint-grid">
+          <div class="maint-row">
+            <div class="maint-label">History Search / Edit / Delete (by Transaction ID)</div>
+            <form id="form-hist-maint" class="inline-form">
+              <input id="mh-txid" class="id-input" type="number" min="1" placeholder="TxID" required />
+              <button type="button" id="btn-hist-search" class="secondary sm">Search TxID</button>
+              <input id="mh-title" class="grow" type="text" placeholder="Corrected Title" />
+              <select id="mh-action">
+                <option value="BORROW">BORROW</option>
+                <option value="RETURN">RETURN</option>
+              </select>
+              <button type="submit" class="warn sm">Update</button>
+              <button type="button" id="btn-hist-del" class="danger sm">Delete</button>
+            </form>
+          </div>
+
+          <div class="maint-row">
+            <div class="maint-label">Return Stack Search &amp; Slot Update (Top-Relative Offset)</div>
+            <form id="form-stack-maint" class="inline-form">
+              <input id="ms-search-id" class="id-input" type="number" min="1" placeholder="Find ID" />
+              <button type="button" id="btn-stack-search" class="secondary sm">Find Offset</button>
+              <input id="ms-off" class="id-input" type="number" min="0" placeholder="Offset" />
+              <input id="ms-id" class="id-input" type="number" min="1" placeholder="New ID" />
+              <button type="submit" class="secondary sm">Update Slot</button>
+            </form>
+          </div>
+
+          <div class="maint-row">
+            <div class="maint-label">Request Queue Search &amp; Slot Update (Front-Relative Offset)</div>
+            <form id="form-queue-maint" class="inline-form">
+              <input id="mq-search-id" class="id-input" type="number" min="1" placeholder="Find ID" />
+              <button type="button" id="btn-queue-search" class="secondary sm">Find Offset</button>
+              <input id="mq-off" class="id-input" type="number" min="0" placeholder="Offset" />
+              <input id="mq-id" class="id-input" type="number" min="1" placeholder="New ID" />
+              <button type="submit" class="secondary sm">Update Slot</button>
+            </form>
+          </div>
+        </div>
+      </details>
+
+      <details class="panel" open>
+        <summary>
+          <span>Live Engine Activity Feed</span>
+          <button id="btn-clear-log" class="secondary sm" type="button">Clear</button>
+        </summary>
+        <div id="log-feed" class="log-feed">
+          <div class="log-entry ok">[INIT] Connected to C++17 LibraryManager engine.</div>
+        </div>
+      </details>
+    </section>
+  </div>
+
+  <!-- Inline Edit Book Modal -->
+  <div id="edit-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h3>Edit Book Metadata <span id="modal-book-id" class="idx-chip"></span></h3>
+      <form id="form-modal-edit">
+        <div class="modal-fields">
+          <div>
+            <label for="modal-title">Book Title</label>
+            <input id="modal-title" type="text" required />
+          </div>
+          <div>
+            <label for="modal-author">Author Name</label>
+            <input id="modal-author" type="text" required />
+          </div>
+        </div>
+        <div class="btn-row" style="justify-content:flex-end;">
+          <button type="button" id="btn-modal-cancel" class="secondary">Cancel</button>
+          <button type="submit">Save Metadata</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const banner = document.getElementById('status-banner');
+    const statusText = document.getElementById('status-text');
+    const statusCode = document.getElementById('status-code');
+    const logFeed = document.getElementById('log-feed');
+
+    let latestState = null;
+    let highlightState = { stackOffset: null, queueOffset: null, txId: null };
+    let editingBookId = null;
+
+    function addLog(ok, text) {
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'log-entry ' + (ok ? 'ok' : 'err');
+      div.textContent = `[${time}] ${text}`;
+      logFeed.prepend(div);
+      while (logFeed.children.length > 40) {
+        logFeed.removeChild(logFeed.lastChild);
+      }
+    }
+
+    function setStatus(ok, message, code = '') {
+      banner.className = 'status-banner ' + (ok ? 'ok' : 'err');
+      statusText.textContent = message;
+      statusCode.textContent = (code || (ok ? 'OK' : 'ERROR')).toUpperCase();
+      addLog(ok, `${code ? '[' + code + '] ' : ''}${message}`);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function apiCall(method, url, body = null) {
+      const opts = { method, headers: {} };
+      if (body !== null) {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(body);
+      }
+      const res = await fetch(url, opts);
+      const data = await res.json();
+      return { httpOk: res.ok, data };
+    }
+
+    async function postAction(url, body, clearHighlights = true) {
+      try {
+        if (clearHighlights) {
+          highlightState = { stackOffset: null, queueOffset: null, txId: null };
+        }
+        const { data } = await apiCall('POST', url, body);
+        setStatus(data.ok, data.message, data.status);
+        await refreshState();
+        return data;
+      } catch (err) {
+        setStatus(false, 'Network error communicating with C++ server: ' + err.message, 'Error');
+        return null;
+      }
+    }
+
+    function renderCircularRing(q) {
+      const svg = document.getElementById('queue-ring-svg');
+      const slotsToDraw = Math.min(q.capacity, 8);
+      const cx = 70, cy = 70, r = 48;
+      let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="2" stroke-dasharray="4 3"/>`;
+      const rearIdx = (q.frontIndex + q.count) % q.capacity;
+
+      for (let i = 0; i < slotsToDraw; i++) {
+        const angle = (i / slotsToDraw) * Math.PI * 2 - Math.PI / 2;
+        const x = cx + Math.cos(angle) * r;
+        const y = cy + Math.sin(angle) * r;
+        const relOffset = (i - (q.frontIndex % slotsToDraw) + slotsToDraw) % slotsToDraw;
+        const occupied = relOffset < q.items.length;
+        const isFront = q.count > 0 && i === (q.frontIndex % slotsToDraw);
+        const fill = isFront ? '#22c55e' : (occupied ? '#f59e0b' : '#1e293b');
+        const stroke = occupied ? '#f8fafc' : '#475569';
+        const label = occupied ? q.items[relOffset] : '';
+        html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+        if (label) {
+          html += `<text x="${x.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#060a14">${label}</text>`;
+        }
+      }
+      html += `<text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#f8fafc">F:${q.frontIndex} R:${rearIdx}</text>`;
+      html += `<text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="8.5" fill="#94a3b8">size ${q.count}/${q.capacity}</text>`;
+      svg.innerHTML = html;
+    }
+
+    function renderCatalogueTable(cat) {
+      const filter = document.getElementById('cat-filter').value.trim().toLowerCase();
+      const catBody = document.getElementById('cat-body');
+      const filtered = cat.items
+        .map((b, idx) => ({ b, idx }))
+        .filter(({ b }) => !filter ||
+          String(b.id).includes(filter) ||
+          b.title.toLowerCase().includes(filter) ||
+          b.author.toLowerCase().includes(filter));
+
+      if (cat.items.length === 0) {
+        catBody.innerHTML = '<tr><td colspan="6" class="empty-msg">Catalogue is empty. Add a book or load the Viva Demo Dataset.</td></tr>';
+        return;
+      }
+      if (filtered.length === 0) {
+        catBody.innerHTML = '<tr><td colspan="6" class="empty-msg">No books match your filter.</td></tr>';
+        return;
+      }
+
+      catBody.innerHTML = filtered.map(({ b, idx }) => `
+        <tr>
+          <td><span class="idx-chip">[${idx}]</span></td>
+          <td><strong>${b.id}</strong></td>
+          <td>${escapeHtml(b.title)}</td>
+          <td>${escapeHtml(b.author)}</td>
+          <td><span class="pill ${b.available ? 'avail' : 'borrowed'}">${b.available ? 'Available' : 'Borrowed'}</span></td>
+          <td style="display:flex;gap:5px;flex-wrap:wrap;">
+            <button class="sm ${b.available ? 'ok' : 'secondary'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow' : 'Queue'}</button>
+            ${!b.available ? `<button class="sm warn" onclick="quickReturn(${b.id})">Return</button>` : ''}
+            <button class="sm secondary" onclick="openEditModal(${b.id})">Edit</button>
+            <button class="sm danger" onclick="quickDelete(${b.id})">Del</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function refreshState() {
+      try {
+        const res = await fetch('/api/state');
+        const state = await res.json();
+        latestState = state;
+
+        // KPI Updates
+        const cat = state.catalogue;
+        const availCount = cat.items.filter(b => b.available).length;
+        document.getElementById('kpi-cat').textContent = cat.count;
+        document.getElementById('kpi-cat-cap').textContent = `/ ${cat.capacity}`;
+        document.getElementById('kpi-avail').textContent = `${availCount} available · ${cat.count - availCount} borrowed`;
+        document.getElementById('bar-cat').style.width = `${Math.min(100, (cat.count / cat.capacity) * 100)}%`;
+        document.getElementById('cat-meta').textContent = `${cat.count} / ${cat.capacity} slots`;
+        renderCatalogueTable(cat);
+
+        // Return Stack
+        const st = state.returnStack;
+        document.getElementById('kpi-stack').textContent = st.count;
+        document.getElementById('kpi-stack-cap').textContent = `/ ${st.capacity}`;
+        document.getElementById('kpi-stack-top').textContent = st.items.length ? `Top Book ID: ${st.items[0]}` : 'Top: empty';
+        document.getElementById('bar-stack').style.width = `${Math.min(100, (st.count / st.capacity) * 100)}%`;
+        document.getElementById('stack-meta').textContent = `${st.count} / ${st.capacity} · LIFO O(1)`;
+
+        const stackView = document.getElementById('stack-view');
+        if (st.items.length === 0) {
+          stackView.innerHTML = '<span class="empty-msg">Return stack is empty.</span>';
+        } else {
+          stackView.innerHTML = st.items.map((id, offset) => {
+            const hl = highlightState.stackOffset === offset ? 'highlight' : '';
+            return `
+              <div class="slot-box ${offset === 0 ? 'top' : ''} ${hl}">
+                <span>Book ID: <strong>${id}</strong></span>
+                <span>${offset === 0 ? 'TOP · offset 0' : 'offset ' + offset}</span>
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Circular Request Queue
+        const q = state.requestQueue;
+        const rearIdx = (q.frontIndex + q.count) % q.capacity;
+        document.getElementById('kpi-queue').textContent = q.count;
+        document.getElementById('kpi-queue-cap').textContent = `/ ${q.capacity}`;
+        document.getElementById('kpi-queue-ptr').textContent = `front=${q.frontIndex} · rear=${rearIdx}`;
+        document.getElementById('bar-queue').style.width = `${Math.min(100, (q.count / q.capacity) * 100)}%`;
+        document.getElementById('queue-meta').textContent = `front=${q.frontIndex} · rear=${rearIdx} · O(1)`;
+        renderCircularRing(q);
+
+        const queueView = document.getElementById('queue-view');
+        if (q.items.length === 0) {
+          queueView.innerHTML = '<span class="empty-msg">Waiting request queue is empty.</span>';
+        } else {
+          queueView.innerHTML = '<span class="arrow">FRONT →</span>' + q.items.map((id, offset) => {
+            const physIdx = (q.frontIndex + offset) % q.capacity;
+            const hl = highlightState.queueOffset === offset ? 'highlight' : '';
+            return `<div class="slot-box ${hl}" style="gap:8px;padding:6px 10px;"><span>ID <strong>${id}</strong></span><span class="idx-chip">off:${offset} [slot ${physIdx}]</span></div>`;
+          }).join('<span class="arrow">→</span>') + '<span class="arrow">→ REAR</span>';
+        }
+
+        // Singly Linked History List
+        const h = state.history;
+        document.getElementById('kpi-hist').textContent = h.count;
+        document.getElementById('kpi-hist-tx').textContent = `nextTxId = ${h.nextTxId}`;
+        document.getElementById('hist-meta').textContent = `${h.count} nodes · nextTxId=${h.nextTxId}`;
+        const histView = document.getElementById('hist-view');
+        if (h.items.length === 0) {
+          histView.innerHTML = '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
+        } else {
+          histView.innerHTML = '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span>' + h.items.map((node, idx) => {
+            const hl = highlightState.txId === node.transactionId ? 'highlight' : '';
+            const actCls = node.action === 'BORROW' ? 'act-borrow' : 'act-return';
+            return `
+              <div class="ll-node ${hl}">
+                <div class="tx-row">
+                  <span class="tx-id">Tx#${node.transactionId}</span>
+                  <span class="act-tag ${actCls}">${escapeHtml(node.action)}</span>
+                </div>
+                <div>Book <strong>${node.bookId}</strong> · ${escapeHtml(node.title)}</div>
+                ${idx === h.items.length - 1 ? '<div style="font-size:0.7rem;color:var(--purple);margin-top:2px;">(TAIL NODE)</div>' : ''}
+              </div>
+            `;
+          }).join('<span class="arrow">──▶</span>') + '<span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
+        }
+      } catch (err) {
+        setStatus(false, 'Failed to sync state: ' + err.message, 'Error');
+      }
+    }
+
+    window.quickBorrow = (id) => postAction('/api/circulation/borrow', { id });
+    window.quickReturn = (id) => postAction('/api/circulation/return', { id });
+    window.quickDelete = (id) => postAction('/api/books/delete', { id });
+
+    window.openEditModal = (id) => {
+      if (!latestState) return;
+      const book = latestState.catalogue.items.find(b => b.id === id);
+      if (!book) return;
+      editingBookId = id;
+      document.getElementById('modal-book-id').textContent = `ID ${id}`;
+      document.getElementById('modal-title').value = book.title;
+      document.getElementById('modal-author').value = book.author;
+      document.getElementById('edit-modal-backdrop').classList.add('open');
+    };
+
+    document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+      document.getElementById('edit-modal-backdrop').classList.remove('open');
+    });
+
+    document.getElementById('form-modal-edit').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (editingBookId === null) return;
+      await postAction('/api/books/edit', {
+        id: editingBookId,
+        title: document.getElementById('modal-title').value,
+        author: document.getElementById('modal-author').value
+      });
+      document.getElementById('edit-modal-backdrop').classList.remove('open');
+    });
+
+    document.getElementById('cat-filter').addEventListener('input', () => {
+      if (latestState) renderCatalogueTable(latestState.catalogue);
+    });
+
+    document.getElementById('form-add').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await postAction('/api/books/add', {
+        id: Number(document.getElementById('add-id').value),
+        title: document.getElementById('add-title').value,
+        author: document.getElementById('add-author').value
+      });
+      if (res && res.ok) e.target.reset();
+    });
+
+    document.getElementById('btn-search').addEventListener('click', async () => {
+      const id = Number(document.getElementById('circ-id').value);
+      if (!id) {
+        setStatus(false, 'Enter a Book ID to search.', 'Invalid');
+        return;
+      }
+      const { data } = await apiCall('GET', `/api/books/search?id=${encodeURIComponent(id)}`);
+      if (data.ok && data.book) {
+        setStatus(true, `Found ID ${data.book.id}: "${data.book.title}" by ${data.book.author} [${data.book.available ? 'Available' : 'Borrowed'}]`, 'Ok');
+      } else {
+        setStatus(false, data.message || 'Book not found.', data.status || 'NotFound');
+      }
+    });
+
+    document.getElementById('btn-borrow').addEventListener('click', () => {
+      postAction('/api/circulation/borrow', { id: Number(document.getElementById('circ-id').value) });
+    });
+
+    document.getElementById('btn-return').addEventListener('click', () => {
+      postAction('/api/circulation/return', { id: Number(document.getElementById('circ-id').value) });
+    });
+
+    document.getElementById('btn-pop-stack').addEventListener('click', () => postAction('/api/circulation/pop-stack', {}));
+    document.getElementById('btn-process-queue').addEventListener('click', () => postAction('/api/circulation/process', {}));
+    document.getElementById('btn-cancel-queue').addEventListener('click', () => postAction('/api/circulation/cancel', {}));
+    document.getElementById('btn-refresh').addEventListener('click', refreshState);
+    document.getElementById('btn-clear-log').addEventListener('click', () => { logFeed.innerHTML = ''; });
+
+    document.getElementById('btn-seed').addEventListener('click', () => {
+      postAction('/api/books/add', { id: 101, title: 'Data Structures', author: 'Seymour Lipschutz' });
+    });
+
+    document.getElementById('btn-seed-demo').addEventListener('click', async () => {
+      await apiCall('POST', '/api/books/add', { id: 101, title: 'Data Structures', author: 'Seymour Lipschutz' });
+      await apiCall('POST', '/api/books/add', { id: 102, title: 'Introduction to Algorithms', author: 'Cormen et al.' });
+      await apiCall('POST', '/api/books/add', { id: 103, title: 'Operating System Concepts', author: 'Silberschatz' });
+      await apiCall('POST', '/api/circulation/borrow', { id: 101 });
+      await apiCall('POST', '/api/circulation/borrow', { id: 101 });
+      await apiCall('POST', '/api/circulation/borrow', { id: 102 });
+      await apiCall('POST', '/api/circulation/borrow', { id: 102 });
+      await apiCall('POST', '/api/circulation/return', { id: 102 });
+      setStatus(true, 'Loaded Viva Demo Dataset (3 books, queue wraparound setup, return stack & history populated).', 'Demo');
+      await refreshState();
+    });
+
+    // Maintenance Handlers
+    document.getElementById('btn-hist-search').addEventListener('click', async () => {
+      const txId = Number(document.getElementById('mh-txid').value);
+      const { data } = await apiCall('GET', `/api/maintenance/history/search?txId=${encodeURIComponent(txId)}`);
+      if (data.ok && data.record) {
+        highlightState.txId = data.record.transactionId;
+        document.getElementById('mh-title').value = data.record.title;
+        document.getElementById('mh-action').value = data.record.action;
+      }
+      setStatus(data.ok, data.message, data.status);
+      await refreshState();
+    });
+
+    document.getElementById('form-hist-maint').addEventListener('submit', (e) => {
+      e.preventDefault();
+      postAction('/api/maintenance/history/edit', {
+        txId: Number(document.getElementById('mh-txid').value),
+        title: document.getElementById('mh-title').value,
+        action: document.getElementById('mh-action').value
+      });
+    });
+
+    document.getElementById('btn-hist-del').addEventListener('click', () => {
+      postAction('/api/maintenance/history/delete', { txId: Number(document.getElementById('mh-txid').value) });
+    });
+
+    document.getElementById('btn-stack-search').addEventListener('click', async () => {
+      const id = Number(document.getElementById('ms-search-id').value);
+      const { data } = await apiCall('GET', `/api/maintenance/stack/search?id=${encodeURIComponent(id)}`);
+      if (data.ok) {
+        highlightState.stackOffset = data.offset;
+        document.getElementById('ms-off').value = data.offset;
+      }
+      setStatus(data.ok, data.message, data.status);
+      await refreshState();
+    });
+
+    document.getElementById('form-stack-maint').addEventListener('submit', (e) => {
+      e.preventDefault();
+      postAction('/api/maintenance/stack/update', {
+        offset: Number(document.getElementById('ms-off').value),
+        bookId: Number(document.getElementById('ms-id').value)
+      });
+    });
+
+    document.getElementById('btn-queue-search').addEventListener('click', async () => {
+      const id = Number(document.getElementById('mq-search-id').value);
+      const { data } = await apiCall('GET', `/api/maintenance/queue/search?id=${encodeURIComponent(id)}`);
+      if (data.ok) {
+        highlightState.queueOffset = data.offset;
+        document.getElementById('mq-off').value = data.offset;
+      }
+      setStatus(data.ok, data.message, data.status);
+      await refreshState();
+    });
+
+    document.getElementById('form-queue-maint').addEventListener('submit', (e) => {
+      e.preventDefault();
+      postAction('/api/maintenance/queue/update', {
+        offset: Number(document.getElementById('mq-off').value),
+        bookId: Number(document.getElementById('mq-id').value)
+      });
+    });
+
+    refreshState();
+  </script>
+</body>
+</html>

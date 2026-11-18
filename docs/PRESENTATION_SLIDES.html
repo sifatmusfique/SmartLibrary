@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Library Management System — Presentation Slides (CSE 2103 Group C)</title>
+  <style>
+    @page { size: landscape; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0b1120; color: #f8fafc; }
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      padding: 44px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      background: linear-gradient(135deg, #0b1120 0%, #111827 100%);
+      border-bottom: 1px solid #1e293b;
+    }
+    .tag { color: #38bdf8; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    h1 { font-size: 38px; margin: 12px 0; color: #f8fafc; }
+    h2 { font-size: 28px; margin-bottom: 18px; color: #38bdf8; }
+    p, li { font-size: 19px; line-height: 1.55; color: #cbd5e1; }
+    ul { margin-left: 26px; }
+    li { margin-bottom: 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .box h3 { color: #f8fafc; font-size: 20px; margin-bottom: 8px; }
+    .box p { font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 16px; }
+    th, td { border: 1px solid #334155; padding: 10px 12px; text-align: left; }
+    th { background: #1e293b; color: #38bdf8; }
+    .footer { display: flex; justify-content: space-between; font-size: 13px; color: #64748b; border-top: 1px solid #1e293b; padding-top: 12px; }
+  </style>
+</head>
+<body>
+  <!-- Slide 1 -->
+  <section class="slide">
+    <div>
+      <div class="tag">CSE 2103 · Data Structures Lab · Group C</div>
+      <h1>Smart Library Management System</h1>
+      <p style="font-size:22px; color:#94a3b8; margin-top:10px;">
+        Manual C++17 Implementation Using Bounded Array, Singly Linked List, Stack &amp; Circular Queue
+      </p>
+    </div>
+    <div class="grid-2">
+      <div class="box">
+        <h3>Team Details</h3>
+        <p>Group C · Student IDs: 252311282, 252311284, 252311285</p>
+        <p>Zero STL containers used for core structures.</p>
+      </div>
+      <div class="box">
+        <h3>Project Goal</h3>
+        <p>Model real-world library inventory, borrow/return history, recent returns, and waiting queues with guaranteed invariants and failure atomicity.</p>
+      </div>
+    </div>
+    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 1 / 6</span></div>
+  </section>
+
+  <!-- Slide 2 -->
+  <section class="slide">
+    <div>
+      <div class="tag">Core Design</div>
+      <h2>Four Custom Data Structures</h2>
+      <div class="grid-2">
+        <div class="box">
+          <h3>1. BookCatalogue (Bounded Array)</h3>
+          <p>Raw <code>Book*</code> array (default 100). Maintains dense prefix <code>[0, count)</code> with left-shift deletion in O(n) and O(1) append.</p>
+        </div>
+        <div class="box">
+          <h3>2. HistoryList (Singly Linked List)</h3>
+          <p><code>head</code> + <code>tail</code> pointers for O(1) chronological append, monotonic 64-bit TxIDs, and safe node deletion.</p>
+        </div>
+        <div class="box">
+          <h3>3. ReturnStack (Bounded Array Stack)</h3>
+          <p>LIFO <code>int*</code> stack tracking recently returned IDs in O(1) with strict overflow/underflow checks.</p>
+        </div>
+        <div class="box">
+          <h3>4. RequestQueue (Circular Array Queue)</h3>
+          <p>FIFO circular buffer using <code>(front + count) % capacity</code> to reuse slots in O(1) without shifting.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 2 / 6</span></div>
+  </section>
+
+  <!-- Slide 3 -->
+  <section class="slide">
+    <div>
+      <div class="tag">System Architecture</div>
+      <h2>Layered Design &amp; Failure Atomicity</h2>
+      <ul>
+        <li><strong>UI Layer:</strong> <code>ConsoleUI</code> (whole-line safe parsing, Menu 0–15) + optional <code>smartlibrary_gui</code> loopback server sharing the identical engine.</li>
+        <li><strong>Coordinator:</strong> <code>LibraryManager</code> enforces consistency — blocks deleting borrowed/pending books and prevents return when stack is full.</li>
+        <li><strong>Failure Atomicity:</strong> Pre-allocates <code>HistoryList::PendingNode</code> before mutating catalogue, stack, or queue; failed allocations leave state untouched.</li>
+        <li><strong>Educational Maintenance:</strong> Submenu 14 inspects/edits historical logs and stack/queue offsets without altering live availability.</li>
+      </ul>
+    </div>
+    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 3 / 6</span></div>
+  </section>
+
+  <!-- Slide 4 -->
+  <section class="slide">
+    <div>
+      <div class="tag">Live Demonstration</div>
+      <h2>Demo Flow (Console &amp; Live Web Dashboard)</h2>
+      <ol style="margin-left:26px; font-size:19px; line-height:1.7; color:#cbd5e1;">
+        <li>Add Book <code>101</code> (<em>Data Structures / Seymour Lipschutz</em>) &amp; Search <code>101</code>.</li>
+        <li>Borrow <code>101</code> (Available → Borrowed, Tx#1 appended to HistoryList).</li>
+        <li>Borrow <code>101</code> again → Enqueued in Circular <code>RequestQueue</code>.</li>
+        <li>Return <code>101</code> → Pushed to <code>ReturnStack</code> (top = 101), Tx#2 appended.</li>
+        <li>Process FIFO Head → Dequeues <code>101</code>, re-borrows, Tx#3 appended.</li>
+        <li>Edge cases: Pop empty stack (<code>Stack Underflow!</code>) &amp; Search <code>999</code> (<code>Book not found.</code>).</li>
+      </ol>
+    </div>
+    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 4 / 6</span></div>
+  </section>
+
+  <!-- Slide 5 -->
+  <section class="slide">
+    <div>
+      <div class="tag">Complexity &amp; Verification</div>
+      <h2>Complexity Summary &amp; Test Results</h2>
+      <table>
+        <thead>
+          <tr><th>Operation</th><th>Structure</th><th>Time</th><th>Space</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Add / Search / Delete / Edit Book</td><td>Bounded Array</td><td>O(n)</td><td>O(1)</td></tr>
+          <tr><td>Append History / Traverse</td><td>Singly Linked List</td><td>O(1) / O(h)</td><td>O(1) per node</td></tr>
+          <tr><td>Push / Pop Return</td><td>Bounded Stack</td><td>O(1)</td><td>O(1)</td></tr>
+          <tr><td>Enqueue / Dequeue Request</td><td>Circular Queue</td><td>O(1)</td><td>O(1)</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:16px;">
+        <strong>Verified:</strong> 5/5 CTest suites pass in Debug &amp; Release (<strong>229 / 229 assertions</strong>, T01–T38) · <code>cppcheck</code> 0 warnings.
+      </p>
+    </div>
+    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 5 / 6</span></div>
+  </section>
+
+  <!-- Slide 6 -->
+  <section class="slide">
+    <div>
+      <div class="tag">Limitations &amp; Conclusion</div>
+      <h2>Limitations &amp; Future Extensions</h2>
+      <ul>
+        <li><strong>Current Scope:</strong> Volatile in-memory state, bounded 100-item default capacities, no student accounts or fines.</li>
+        <li><strong>Future Extensions:</strong> File/SQLite persistence, member accounts, BST/hash indexing for O(log n)/O(1) catalogue lookup.</li>
+        <li><strong>Conclusion:</strong> Successfully delivers a leak-free, student-readable C++17 data structures solution ready for viva defense.</li>
+      </ul>
+    </div>
+    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 6 / 6 · Thank You / Questions</span></div>
+  </section>
+</body>
+</html>
