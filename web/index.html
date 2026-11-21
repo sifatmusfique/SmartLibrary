@@ -470,7 +470,7 @@
         <div>
           <h1>
             Smart Library Management System
-            <span class="badge"><span class="live-dot"></span> C++17 Live Engine</span>
+            <span id="engine-badge" class="badge"><span id="engine-dot" class="live-dot"></span> <span id="engine-label">C++17 Live Engine</span></span>
           </h1>
           <p class="subtitle">CSE 2103 Group C · Bounded Array · Singly Linked List · LIFO Stack · Circular FIFO Queue</p>
         </div>
@@ -714,6 +714,225 @@
     let latestState = null;
     let highlightState = { stackOffset: null, queueOffset: null, txId: null };
     let editingBookId = null;
+    let isStaticMode = false;
+
+    // Client-side fallback mirror used ONLY when hosted statically (e.g. Netlify) without local C++ server
+    const staticEngine = (() => {
+      const CAP = 100;
+      const catalogue = []; // bounded array [0..count)
+      let histHead = null, histTail = null, histCount = 0, nextTxId = 1;
+      const stack = []; // LIFO array (index 0 = bottom, last = top)
+      const queueArr = new Array(CAP).fill(0);
+      let qFront = 0, qCount = 0;
+
+      const trim = (s) => String(s ?? '').trim();
+      const findCatIdx = (id) => catalogue.findIndex(b => b.id === id);
+      const queueContains = (id) => {
+        for (let i = 0; i < qCount; i++) {
+          if (queueArr[(qFront + i) % CAP] === id) return true;
+        }
+        return false;
+      };
+      const appendHistory = (bookId, title, action) => {
+        const node = { data: { transactionId: nextTxId++, bookId, title, action }, next: null };
+        if (!histTail) { histHead = histTail = node; }
+        else { histTail.next = node; histTail = node; }
+        histCount++;
+        return node.data.transactionId;
+      };
+      const resp = (ok, status, message, extra = {}) => ({ httpOk: ok, data: { ok, status, message, ...extra } });
+
+      return {
+        getState() {
+          const histItems = [];
+          for (let cur = histHead; cur; cur = cur.next) histItems.push({ ...cur.data });
+          const stackTopToBottom = [...stack].reverse();
+          const qItems = [];
+          for (let i = 0; i < qCount; i++) qItems.push(queueArr[(qFront + i) % CAP]);
+          return {
+            catalogue: { count: catalogue.length, capacity: CAP, items: catalogue.map(b => ({ ...b })) },
+            history: { count: histCount, nextTxId, items: histItems },
+            returnStack: { count: stack.length, capacity: CAP, items: stackTopToBottom },
+            requestQueue: { count: qCount, capacity: CAP, frontIndex: qFront, items: qItems }
+          };
+        },
+        handle(method, url, body = {}) {
+          const [path, query = ''] = url.split('?');
+          if (method === 'GET' && path === '/api/state') {
+            return { httpOk: true, data: this.getState() };
+          }
+          if (method === 'GET' && path === '/api/books/search') {
+            const id = Number(new URLSearchParams(query).get('id'));
+            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid book ID.');
+            const idx = findCatIdx(id);
+            if (idx === -1) return resp(false, 'NotFound', 'Book not found.');
+            return { httpOk: true, data: { ok: true, status: 'Ok', book: { ...catalogue[idx] } } };
+          }
+          if (path === '/api/books/add') {
+            const id = Number(body.id), title = trim(body.title), author = trim(body.author);
+            if (!Number.isInteger(id) || id <= 0 || !title || !author) return resp(false, 'Invalid', 'Invalid book details (ID must be > 0 and title/author non-empty).');
+            if (catalogue.length >= CAP) return resp(false, 'Full', 'Catalogue is full. Cannot add more books.');
+            if (findCatIdx(id) !== -1) return resp(false, 'Duplicate', 'Duplicate Book ID. Book not added.');
+            catalogue.push({ id, title, author, available: true });
+            return resp(true, 'Ok', 'Book added successfully.');
+          }
+          if (path === '/api/books/delete') {
+            const id = Number(body.id);
+            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid book ID.');
+            const idx = findCatIdx(id);
+            if (idx === -1) return resp(false, 'NotFound', 'Book not found.');
+            if (!catalogue[idx].available || queueContains(id)) return resp(false, 'Blocked', 'Cannot delete: book is currently borrowed or has pending requests.');
+            for (let i = idx; i + 1 < catalogue.length; i++) catalogue[i] = catalogue[i + 1];
+            catalogue.pop();
+            return resp(true, 'Ok', 'Book deleted successfully.');
+          }
+          if (path === '/api/books/edit') {
+            const id = Number(body.id), title = trim(body.title), author = trim(body.author);
+            if (!Number.isInteger(id) || id <= 0 || !title || !author) return resp(false, 'Invalid', 'Invalid metadata (title and author cannot be blank).');
+            const idx = findCatIdx(id);
+            if (idx === -1) return resp(false, 'NotFound', 'Book not found.');
+            catalogue[idx].title = title;
+            catalogue[idx].author = author;
+            return resp(true, 'Ok', 'Book metadata updated successfully.');
+          }
+          if (path === '/api/circulation/borrow') {
+            const id = Number(body.id);
+            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid book ID.');
+            const idx = findCatIdx(id);
+            if (idx === -1) return resp(false, 'NotFound', 'Book not found.');
+            if (catalogue[idx].available) {
+              catalogue[idx].available = false;
+              appendHistory(id, catalogue[idx].title, 'BORROW');
+              return resp(true, 'Borrowed', 'Book borrowed successfully.');
+            }
+            if (qCount >= CAP) return resp(false, 'Full', 'Queue Overflow! Waiting request queue is full.');
+            queueArr[(qFront + qCount) % CAP] = id;
+            qCount++;
+            return resp(true, 'Queued', 'Book is already borrowed. Request added to queue.');
+          }
+          if (path === '/api/circulation/return') {
+            const id = Number(body.id);
+            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid book ID.');
+            const idx = findCatIdx(id);
+            if (idx === -1) return resp(false, 'NotFound', 'Book not found.');
+            if (catalogue[idx].available) return resp(false, 'Blocked', 'Book is already available; cannot return.');
+            if (stack.length >= CAP) return resp(false, 'Full', 'Stack Overflow! Return stack is full; pop a recent return first.');
+            catalogue[idx].available = true;
+            stack.push(id);
+            appendHistory(id, catalogue[idx].title, 'RETURN');
+            return resp(true, 'Ok', 'Book returned successfully.');
+          }
+          if (path === '/api/circulation/process') {
+            if (qCount === 0) return resp(false, 'Empty', 'Queue Underflow! No pending requests.');
+            const headId = queueArr[qFront];
+            const idx = findCatIdx(headId);
+            if (idx === -1 || !catalogue[idx].available) return resp(false, 'Blocked', `Head request (Book ID ${headId}) is currently unavailable. Queue left unchanged.`);
+            queueArr[qFront] = 0;
+            qFront = (qFront + 1) % CAP;
+            qCount--;
+            catalogue[idx].available = false;
+            appendHistory(headId, catalogue[idx].title, 'BORROW');
+            return resp(true, 'Ok', `Processed waiting request for Book ID ${headId}. Book borrowed successfully.`);
+          }
+          if (path === '/api/circulation/cancel') {
+            if (qCount === 0) return resp(false, 'Empty', 'Queue Underflow! No pending requests to cancel.');
+            const headId = queueArr[qFront];
+            queueArr[qFront] = 0;
+            qFront = (qFront + 1) % CAP;
+            qCount--;
+            return resp(true, 'Ok', `Cancelled head waiting request for Book ID ${headId}.`);
+          }
+          if (path === '/api/circulation/pop-stack') {
+            if (stack.length === 0) return resp(false, 'Empty', 'Stack Underflow!');
+            const id = stack.pop();
+            return resp(true, 'Ok', `Popped Book ID ${id} from return stack.`);
+          }
+          if (method === 'GET' && path === '/api/maintenance/history/search') {
+            const txId = Number(new URLSearchParams(query).get('txId'));
+            if (!Number.isInteger(txId) || txId <= 0) return resp(false, 'Invalid', 'Invalid Transaction ID.');
+            if (!histHead) return resp(false, 'Empty', 'History is empty.');
+            for (let cur = histHead; cur; cur = cur.next) {
+              if (cur.data.transactionId === txId) {
+                return resp(true, 'Ok', `Found Tx#${txId} (Book ${cur.data.bookId}: ${cur.data.title} [${cur.data.action}])`, { record: { ...cur.data } });
+              }
+            }
+            return resp(false, 'NotFound', 'History record not found.');
+          }
+          if (path === '/api/maintenance/history/edit') {
+            const txId = Number(body.txId), title = trim(body.title), action = trim(body.action);
+            if (!Number.isInteger(txId) || txId <= 0 || !title || (action !== 'BORROW' && action !== 'RETURN')) {
+              return resp(false, 'Invalid', 'Invalid history correction.');
+            }
+            if (!histHead) return resp(false, 'Empty', 'History is empty.');
+            for (let cur = histHead; cur; cur = cur.next) {
+              if (cur.data.transactionId === txId) {
+                cur.data.title = title; cur.data.action = action;
+                return resp(true, 'Ok', 'History entry updated.');
+              }
+            }
+            return resp(false, 'NotFound', 'History record not found.');
+          }
+          if (path === '/api/maintenance/history/delete') {
+            const txId = Number(body.txId);
+            if (!Number.isInteger(txId) || txId <= 0) return resp(false, 'Invalid', 'Invalid Transaction ID.');
+            if (!histHead) return resp(false, 'Empty', 'History is empty.');
+            if (histHead.data.transactionId === txId) {
+              histHead = histHead.next;
+              if (!histHead) histTail = null;
+              histCount--;
+              return resp(true, 'Ok', 'History entry deleted.');
+            }
+            let prev = histHead;
+            while (prev.next) {
+              if (prev.next.data.transactionId === txId) {
+                const target = prev.next;
+                prev.next = target.next;
+                if (target === histTail) histTail = prev;
+                histCount--;
+                return resp(true, 'Ok', 'History entry deleted.');
+              }
+              prev = prev.next;
+            }
+            return resp(false, 'NotFound', 'History record not found.');
+          }
+          if (method === 'GET' && path === '/api/maintenance/stack/search') {
+            const id = Number(new URLSearchParams(query).get('id'));
+            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid Book ID.');
+            if (stack.length === 0) return resp(false, 'Empty', 'Return stack is empty.');
+            for (let off = 0; off < stack.length; off++) {
+              if (stack[stack.length - 1 - off] === id) return resp(true, 'Ok', `Found Book ID ${id} at top-relative offset ${off}.`, { offset: off });
+            }
+            return resp(false, 'NotFound', 'Book ID not found in return stack.');
+          }
+          if (path === '/api/maintenance/stack/update') {
+            const off = Number(body.offset), bookId = Number(body.bookId);
+            if (stack.length === 0) return resp(false, 'Empty', 'Return stack is empty.');
+            if (!Number.isInteger(off) || off < 0 || off >= stack.length || !Number.isInteger(bookId) || bookId <= 0) return resp(false, 'Invalid', 'Invalid offset or Book ID.');
+            if (findCatIdx(bookId) === -1) return resp(false, 'NotFound', 'Target Book ID does not exist in catalogue.');
+            stack[stack.length - 1 - off] = bookId;
+            return resp(true, 'Ok', 'Return stack slot updated.');
+          }
+          if (method === 'GET' && path === '/api/maintenance/queue/search') {
+            const id = Number(new URLSearchParams(query).get('id'));
+            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid Book ID.');
+            if (qCount === 0) return resp(false, 'Empty', 'Waiting request queue is empty.');
+            for (let off = 0; off < qCount; off++) {
+              if (queueArr[(qFront + off) % CAP] === id) return resp(true, 'Ok', `Found Book ID ${id} at front-relative offset ${off}.`, { offset: off });
+            }
+            return resp(false, 'NotFound', 'Book ID not found in waiting queue.');
+          }
+          if (path === '/api/maintenance/queue/update') {
+            const off = Number(body.offset), bookId = Number(body.bookId);
+            if (qCount === 0) return resp(false, 'Empty', 'Waiting request queue is empty.');
+            if (!Number.isInteger(off) || off < 0 || off >= qCount || !Number.isInteger(bookId) || bookId <= 0) return resp(false, 'Invalid', 'Invalid offset or Book ID.');
+            if (findCatIdx(bookId) === -1) return resp(false, 'NotFound', 'Target Book ID does not exist in catalogue.');
+            queueArr[(qFront + off) % CAP] = bookId;
+            return resp(true, 'Ok', 'Request queue slot updated.');
+          }
+          return resp(false, 'NotFound', 'Endpoint not found.');
+        }
+      };
+    })();
 
     function addLog(ok, text) {
       const time = new Date().toLocaleTimeString();
@@ -742,14 +961,31 @@
     }
 
     async function apiCall(method, url, body = null) {
+      if (isStaticMode) {
+        return staticEngine.handle(method, url, body || {});
+      }
       const opts = { method, headers: {} };
       if (body !== null) {
         opts.headers['Content-Type'] = 'application/json';
         opts.body = JSON.stringify(body);
       }
       const res = await fetch(url, opts);
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        enableStaticMode();
+        return staticEngine.handle(method, url, body || {});
+      }
       const data = await res.json();
       return { httpOk: res.ok, data };
+    }
+
+    function enableStaticMode() {
+      if (isStaticMode) return;
+      isStaticMode = true;
+      document.getElementById('engine-label').textContent = 'Static Web Demo (Client Mirror)';
+      document.getElementById('engine-dot').style.background = '#f59e0b';
+      document.getElementById('engine-dot').style.boxShadow = '0 0 8px #f59e0b';
+      setStatus(true, 'Static web hosting detected (no local C++ server). Interactive browser simulation active; run smartlibrary_gui.exe locally for native C++17 mode.', 'WEB DEMO');
     }
 
     async function postAction(url, body, clearHighlights = true) {
@@ -832,8 +1068,19 @@
 
     async function refreshState() {
       try {
-        const res = await fetch('/api/state');
-        const state = await res.json();
+        let state;
+        if (isStaticMode) {
+          state = staticEngine.getState();
+        } else {
+          const res = await fetch('/api/state');
+          const ct = res.headers.get('content-type') || '';
+          if (!res.ok || !ct.includes('application/json')) {
+            enableStaticMode();
+            state = staticEngine.getState();
+          } else {
+            state = await res.json();
+          }
+        }
         latestState = state;
 
         // KPI Updates
