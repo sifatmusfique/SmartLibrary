@@ -2,49 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SmartLibrary · CSE 2103 Live Data Structures Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#070b14" />
+  <title>SmartLibrary · CSE 2103 Live Data Structures Explorer</title>
   <style>
     :root {
-      --bg: #060a14;
-      --bg-grad: radial-gradient(circle at 12% 0%, rgba(56, 189, 248, 0.12), transparent 36%),
-                 radial-gradient(circle at 88% 12%, rgba(167, 139, 250, 0.10), transparent 34%);
-      --surface: rgba(15, 23, 42, 0.88);
+      --bg: #070b14;
+      --bg-grad:
+        radial-gradient(circle at 8% 0%, rgba(56, 189, 248, 0.16), transparent 36%),
+        radial-gradient(circle at 92% 6%, rgba(192, 132, 252, 0.14), transparent 34%),
+        radial-gradient(circle at 50% 100%, rgba(52, 211, 153, 0.10), transparent 42%);
+      --surface: rgba(15, 23, 42, 0.9);
       --surface-solid: #0f172a;
-      --surface-alt: #172236;
-      --surface-hover: #1e2d47;
-      --border: rgba(148, 163, 184, 0.16);
-      --border-strong: rgba(148, 163, 184, 0.28);
+      --surface-alt: #162137;
+      --surface-hover: #1e2d4a;
+      --border: rgba(148, 163, 184, 0.18);
+      --border-strong: rgba(148, 163, 184, 0.34);
       --text: #f8fafc;
-      --text-soft: #cbd5e1;
+      --text-soft: #e2e8f0;
       --muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.14);
+
+      /* Distinct colorful theme per Data Structure */
+      --cat-color: #38bdf8;
+      --cat-soft: rgba(56, 189, 248, 0.15);
+      --stack-color: #34d399;
+      --stack-soft: rgba(52, 211, 153, 0.15);
+      --queue-color: #fbbf24;
+      --queue-soft: rgba(251, 191, 36, 0.15);
+      --hist-color: #c084fc;
+      --hist-soft: rgba(192, 132, 252, 0.15);
+
       --ok: #22c55e;
-      --ok-soft: rgba(34, 197, 94, 0.14);
+      --ok-soft: rgba(34, 197, 94, 0.16);
       --warn: #f59e0b;
-      --warn-soft: rgba(245, 158, 11, 0.14);
-      --danger: #ef4444;
-      --danger-soft: rgba(239, 68, 68, 0.14);
-      --purple: #a78bfa;
-      --purple-soft: rgba(167, 139, 250, 0.14);
-      --radius: 12px;
-      --shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.65);
+      --warn-soft: rgba(245, 158, 11, 0.16);
+      --danger: #f43f5e;
+      --danger-soft: rgba(244, 63, 94, 0.16);
+
+      --radius: 14px;
+      --shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.72);
       --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
       background-color: var(--bg);
       background-image: var(--bg-grad);
       color: var(--text);
       line-height: 1.5;
       min-height: 100vh;
-      padding: 22px 24px 42px;
+      padding: 20px 24px 48px;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .container { max-width: 1440px; margin: 0 auto; }
+    .container { max-width: 1440px; margin: 0 auto; width: 100%; }
 
     /* Header */
     header {
@@ -52,60 +66,120 @@
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      padding-bottom: 18px;
-      margin-bottom: 18px;
+      gap: 14px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
       border-bottom: 1px solid var(--border);
     }
-    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
     .brand-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 11px;
-      background: linear-gradient(135deg, #0284c7, #6366f1);
+      width: 48px;
+      height: 48px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 55%, #ec4899 100%);
       display: grid;
       place-items: center;
       font-weight: 800;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       color: #fff;
-      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35);
+      box-shadow: 0 8px 22px rgba(14, 165, 233, 0.35);
       flex-shrink: 0;
     }
     .brand h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
+      font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+      font-weight: 750;
       letter-spacing: -0.02em;
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
     }
-    .brand .subtitle { font-size: 0.84rem; color: var(--muted); margin-top: 2px; }
+    .brand .subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 3px 10px;
+      padding: 4px 11px;
       border-radius: 999px;
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 600;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: var(--cat-soft);
+      color: var(--cat-color);
+      border: 1px solid rgba(56, 189, 248, 0.35);
     }
     .live-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--ok);
       box-shadow: 0 0 8px var(--ok);
+      flex-shrink: 0;
     }
 
-    /* Status Toast Bar */
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* Quick Jump Bar (especially helpful on phones/tablets) */
+    .quick-nav {
+      display: none;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 12px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+    }
+    .quick-nav::-webkit-scrollbar { display: none; }
+    .quick-nav a {
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Beginner Friendly How-It-Works Strip */
+    .guide-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .guide-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 10px 13px;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+    }
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 0.76rem;
+      flex-shrink: 0;
+      color: #060a14;
+    }
+
+    /* Status Banner */
     .status-banner {
-      padding: 11px 16px;
+      padding: 12px 16px;
       border-radius: var(--radius);
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       font-size: 0.9rem;
       font-weight: 500;
       background: var(--surface);
@@ -115,48 +189,51 @@
       align-items: center;
       gap: 12px;
       box-shadow: var(--shadow);
-      transition: border-color 0.2s, background 0.2s;
     }
-    .status-banner.ok { border-color: rgba(34, 197, 94, 0.45); background: rgba(20, 83, 45, 0.26); color: #dcfce7; }
-    .status-banner.err { border-color: rgba(239, 68, 68, 0.5); background: rgba(127, 29, 29, 0.28); color: #fee2e2; }
+    .status-banner.ok { border-color: rgba(34, 197, 94, 0.5); background: linear-gradient(90deg, rgba(20, 83, 45, 0.42), rgba(15, 23, 42, 0.9)); color: #dcfce7; }
+    .status-banner.err { border-color: rgba(244, 63, 94, 0.55); background: linear-gradient(90deg, rgba(136, 19, 55, 0.42), rgba(15, 23, 42, 0.9)); color: #ffe4e6; }
     .status-pill {
       font-family: var(--mono);
-      font-size: 0.75rem;
-      padding: 2px 9px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 3px 10px;
       border-radius: 6px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--border-strong);
       color: var(--text-soft);
       white-space: nowrap;
     }
 
-    /* KPI Strip */
+    /* KPI Telemetry Strip */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
       margin-bottom: 18px;
     }
-    @media (max-width: 960px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 540px) { .kpi-grid { grid-template-columns: 1fr; } }
-
     .kpi-card {
       background: var(--surface);
       border: 1px solid var(--border);
+      border-top: 3px solid var(--accent-bar, var(--cat-color));
       border-radius: var(--radius);
       padding: 14px 16px;
       box-shadow: var(--shadow);
     }
-    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
-    .kpi-value { font-size: 1.55rem; font-weight: 700; margin: 4px 0 6px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 8px; }
-    .kpi-sub { font-size: 0.76rem; color: var(--muted); font-family: var(--mono); }
-    .progress-track { height: 5px; background: var(--surface-alt); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+    .kpi-card.cat { --accent-bar: var(--cat-color); }
+    .kpi-card.stack { --accent-bar: var(--stack-color); }
+    .kpi-card.queue { --accent-bar: var(--queue-color); }
+    .kpi-card.hist { --accent-bar: var(--hist-color); }
+
+    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 700; }
+    .kpi-value { font-size: 1.65rem; font-weight: 800; margin: 3px 0 4px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 7px; }
+    .kpi-sub { font-size: 0.77rem; color: var(--muted); font-family: var(--mono); }
+    .progress-track { height: 6px; background: var(--surface-alt); border-radius: 999px; overflow: hidden; margin-top: 9px; }
     .progress-fill { height: 100%; border-radius: 999px; transition: width 0.25s ease; }
 
     /* Cards & Controls */
     .controls-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 16px;
       margin-bottom: 18px;
     }
@@ -167,65 +244,83 @@
       padding: 16px 18px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(8px);
+      min-width: 0;
     }
+    .card.theme-cat { border-top: 3px solid var(--cat-color); }
+    .card.theme-stack { border-top: 3px solid var(--stack-color); }
+    .card.theme-queue { border-top: 3px solid var(--queue-color); }
+    .card.theme-hist { border-top: 3px solid var(--hist-color); }
+
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
       gap: 10px;
       flex-wrap: wrap;
     }
-    .card-title { font-size: 0.98rem; font-weight: 650; display: flex; align-items: center; gap: 8px; }
+    .card-title { font-size: 1.02rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .ds-explain {
+      font-size: 0.81rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
     .complexity-tag {
       font-family: var(--mono);
-      font-size: 0.72rem;
-      padding: 2px 7px;
-      border-radius: 5px;
+      font-size: 0.73rem;
+      padding: 3px 8px;
+      border-radius: 6px;
       background: var(--surface-alt);
       border: 1px solid var(--border);
-      color: var(--muted);
+      color: var(--text-soft);
     }
 
-    form.inline-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    form.inline-form { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
     input, select {
       background: var(--surface-alt);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 8px 11px;
-      font-size: 0.86rem;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      min-height: 40px;
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
     input:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+      border-color: var(--cat-color);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.16);
     }
-    input.id-input { width: 92px; }
-    input.grow { flex: 1; min-width: 130px; }
+    input.id-input { width: 96px; }
+    input.grow { flex: 1; min-width: 140px; }
 
     button {
-      background: var(--accent);
-      color: #082f49;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #06283d;
       border: none;
-      border-radius: 7px;
-      padding: 8px 13px;
-      font-size: 0.84rem;
-      font-weight: 600;
+      border-radius: 8px;
+      padding: 9px 14px;
+      min-height: 40px;
+      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: filter 0.15s, transform 0.06s;
+      touch-action: manipulation;
+      transition: filter 0.15s, transform 0.06s, opacity 0.15s;
       white-space: nowrap;
     }
-    button:hover { filter: brightness(1.08); }
-    button:active { transform: translateY(1px); }
+    button:hover:not(:disabled) { filter: brightness(1.08); }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
     button.secondary { background: var(--surface-alt); color: var(--text-soft); border: 1px solid var(--border-strong); }
-    button.secondary:hover { background: var(--surface-hover); }
-    button.ok { background: var(--ok); color: #052e16; }
-    button.warn { background: var(--warn); color: #451a03; }
-    button.danger { background: var(--danger); color: #fff; }
-    button.ghost { background: transparent; color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.35); }
-    button.sm { padding: 4px 9px; font-size: 0.77rem; border-radius: 6px; }
+    button.secondary:hover:not(:disabled) { background: var(--surface-hover); }
+    button.ok { background: linear-gradient(135deg, #4ade80, #22c55e); color: #052e16; }
+    button.warn { background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #451a03; }
+    button.danger { background: linear-gradient(135deg, #fb7185, #e11d48); color: #fff; }
+    button.purple { background: linear-gradient(135deg, #c084fc, #9333ea); color: #fff; }
+    button.ghost { background: transparent; color: var(--cat-color); border: 1px solid rgba(56, 189, 248, 0.45); }
+    button.sm { padding: 6px 10px; min-height: 32px; font-size: 0.78rem; border-radius: 7px; }
 
     /* Main Workspace Grid */
     .structures-grid {
@@ -234,14 +329,13 @@
       gap: 16px;
       margin-bottom: 18px;
     }
-    @media (max-width: 1050px) { .structures-grid { grid-template-columns: 1fr; } }
 
-    .table-wrap { overflow-x: auto; max-height: 410px; overflow-y: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    .table-wrap { overflow-x: auto; max-height: 440px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
     th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
     th {
       color: var(--muted);
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.74rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -252,25 +346,46 @@
     }
     tr:hover td { background: rgba(30, 41, 59, 0.45); }
 
+    /* Mobile Card List (replaces table on small Android screens) */
+    .mobile-book-list { display: none; flex-direction: column; gap: 10px; }
+    .mobile-book-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cat-color);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .mobile-book-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .mobile-book-title { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+    .mobile-book-author { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; }
+    .mobile-book-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+
     .pill {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 2px 9px;
+      padding: 3px 9px;
       border-radius: 999px;
       font-size: 0.74rem;
-      font-weight: 600;
+      font-weight: 700;
     }
-    .pill.avail { background: var(--ok-soft); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
-    .pill.borrowed { background: var(--warn-soft); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill.avail { background: var(--ok-soft); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.35); }
+    .pill.borrowed { background: var(--warn-soft); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.35); }
     .idx-chip {
       font-family: var(--mono);
       font-size: 0.75rem;
       background: var(--surface-alt);
       border: 1px solid var(--border);
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 5px;
-      color: var(--accent);
+      color: var(--cat-color);
+      font-weight: 600;
     }
 
     /* Stack & Queue Visualizers */
@@ -278,7 +393,7 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
-      max-height: 220px;
+      max-height: 230px;
       overflow-y: auto;
     }
     .slot-box {
@@ -287,20 +402,23 @@
       align-items: center;
       background: var(--surface-alt);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 12px;
+      border-radius: 9px;
+      padding: 9px 12px;
       font-family: var(--mono);
-      font-size: 0.83rem;
-      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.84rem;
     }
     .slot-box.top {
-      border-color: var(--accent);
-      background: rgba(56, 189, 248, 0.08);
-      box-shadow: inset 3px 0 0 var(--accent);
+      border-color: var(--stack-color);
+      background: var(--stack-soft);
+      box-shadow: inset 4px 0 0 var(--stack-color);
+    }
+    .slot-box.q-item {
+      border-color: rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.08);
     }
     .slot-box.highlight {
-      border-color: var(--warn);
-      background: var(--warn-soft);
+      border-color: #f43f5e;
+      background: var(--danger-soft);
     }
 
     .queue-visual-row {
@@ -310,14 +428,14 @@
       flex-wrap: wrap;
     }
     .queue-ring-box {
-      width: 148px;
-      height: 148px;
+      width: 156px;
+      height: 156px;
       flex-shrink: 0;
       display: grid;
       place-items: center;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px;
       padding: 6px;
     }
     .queue-chain {
@@ -339,15 +457,15 @@
     }
     .ll-node {
       background: var(--surface-alt);
-      border: 1px solid rgba(167, 139, 250, 0.45);
-      border-radius: 9px;
-      padding: 8px 12px;
-      font-size: 0.81rem;
-      min-width: 155px;
+      border: 1px solid rgba(192, 132, 252, 0.45);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      min-width: 165px;
       transition: transform 0.12s, border-color 0.2s;
     }
-    .ll-node:hover { transform: translateY(-1px); border-color: var(--purple); }
-    .ll-node.highlight { border-color: var(--warn); background: var(--warn-soft); }
+    .ll-node:hover { transform: translateY(-1px); border-color: var(--hist-color); }
+    .ll-node.highlight { border-color: var(--queue-color); background: var(--warn-soft); }
     .ll-node .tx-row {
       display: flex;
       justify-content: space-between;
@@ -357,90 +475,86 @@
       font-size: 0.76rem;
       margin-bottom: 3px;
     }
-    .tx-id { color: var(--purple); font-weight: 700; }
-    .act-tag { padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
+    .tx-id { color: var(--hist-color); font-weight: 800; }
+    .act-tag { padding: 1px 7px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
     .act-borrow { background: var(--warn-soft); color: #fde68a; }
     .act-return { background: var(--ok-soft); color: #86efac; }
-    .arrow { color: var(--muted); font-family: var(--mono); font-weight: 700; font-size: 0.85rem; }
+    .arrow { color: var(--muted); font-family: var(--mono); font-weight: 700; font-size: 0.88rem; }
     .ptr-badge {
       font-family: var(--mono);
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 5px;
-      background: var(--purple-soft);
-      color: var(--purple);
-      border: 1px solid rgba(167, 139, 250, 0.35);
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: var(--hist-soft);
+      color: var(--hist-color);
+      border: 1px solid rgba(192, 132, 252, 0.4);
     }
 
-    .empty-msg { color: var(--muted); font-size: 0.85rem; font-style: italic; }
+    .empty-msg { color: var(--muted); font-size: 0.86rem; font-style: italic; }
     .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 
-    /* Bottom Tabs: Maintenance + Event Log */
+    /* Bottom Maintenance + Audit Feed */
     .bottom-grid {
       display: grid;
       grid-template-columns: 1.3fr 1fr;
       gap: 16px;
     }
-    @media (max-width: 1050px) { .bottom-grid { grid-template-columns: 1fr; } }
 
     details.panel {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 14px 16px;
+      padding: 15px 17px;
       box-shadow: var(--shadow);
     }
     details.panel summary {
       cursor: pointer;
-      font-weight: 650;
-      font-size: 0.94rem;
+      font-weight: 700;
+      font-size: 0.95rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 10px;
       list-style: none;
     }
     details.panel summary::-webkit-details-marker { display: none; }
-    .maint-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 14px;
-    }
+    .maint-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
     .maint-row {
-      background: rgba(23, 34, 54, 0.65);
+      background: rgba(22, 33, 55, 0.72);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px;
+      border-radius: 9px;
+      padding: 11px;
     }
-    .maint-label { font-size: 0.74rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
+    .maint-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; margin-bottom: 7px; text-transform: uppercase; }
 
     .log-feed {
-      max-height: 240px;
+      max-height: 250px;
       overflow-y: auto;
       font-family: var(--mono);
       font-size: 0.78rem;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
     .log-entry {
-      padding: 6px 9px;
-      border-radius: 6px;
+      padding: 7px 10px;
+      border-radius: 7px;
       background: var(--surface-alt);
-      border-left: 3px solid var(--accent);
+      border-left: 3px solid var(--cat-color);
       color: var(--text-soft);
+      word-break: break-word;
     }
-    .log-entry.err { border-left-color: var(--danger); color: #fecaca; }
+    .log-entry.err { border-left-color: var(--danger); color: #fecdd3; }
     .log-entry.ok { border-left-color: var(--ok); }
 
-    /* Modal for inline book metadata editing */
+    /* Edit Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(2, 6, 23, 0.72);
-      backdrop-filter: blur(4px);
+      background: rgba(2, 6, 23, 0.76);
+      backdrop-filter: blur(5px);
       display: none;
       place-items: center;
       z-index: 50;
@@ -454,12 +568,57 @@
       padding: 20px;
       width: 100%;
       max-width: 440px;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
     }
-    .modal h3 { margin-bottom: 12px; font-size: 1.05rem; }
-    .modal-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
-    .modal-fields label { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 4px; }
+    .modal h3 { margin-bottom: 12px; font-size: 1.06rem; }
+    .modal-fields { display: flex; flex-direction: column; gap: 11px; margin-bottom: 14px; }
+    .modal-fields label { font-size: 0.79rem; color: var(--muted); display: block; margin-bottom: 4px; }
     .modal-fields input { width: 100%; }
+
+    /* ==================== RESPONSIVE BREAKPOINTS ==================== */
+
+    /* Tablets & Small Laptops (<= 1060px) */
+    @media (max-width: 1060px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .controls-grid { grid-template-columns: 1fr; }
+      .structures-grid { grid-template-columns: 1fr; }
+      .bottom-grid { grid-template-columns: 1fr; }
+      .guide-strip { grid-template-columns: 1fr; }
+      .quick-nav { display: flex; }
+    }
+
+    /* Android Phones & Compact Screens (<= 680px) */
+    @media (max-width: 680px) {
+      body { padding: 12px 12px 36px; }
+      header { padding-bottom: 12px; margin-bottom: 12px; }
+      .brand-icon { width: 40px; height: 40px; font-size: 0.95rem; }
+      .header-actions { width: 100%; }
+      .header-actions button { flex: 1 1 auto; }
+
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .kpi-card { padding: 11px 12px; }
+      .kpi-value { font-size: 1.35rem; }
+
+      .card { padding: 14px; }
+      /* Prevent iOS/Android auto-zoom on input focus (>= 16px) & stack nicely */
+      input, select { font-size: 16px; min-height: 44px; width: 100%; }
+      input.id-input, input.grow { width: 100%; min-width: 0; flex: 1 1 100%; }
+      form.inline-form button { flex: 1 1 46%; min-height: 44px; }
+
+      .status-banner { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 0.85rem; }
+
+      /* Switch Desktop Table -> Touch-Friendly Mobile Cards */
+      .table-wrap { display: none; }
+      .mobile-book-list { display: flex; }
+
+      .queue-visual-row { flex-direction: column; align-items: stretch; }
+      .queue-ring-box { margin: 0 auto; }
+
+      .node-chain { flex-direction: column; align-items: stretch; }
+      .ll-node { width: 100%; }
+      .node-chain .arrow { text-align: center; transform: rotate(90deg); display: inline-block; align-self: center; }
+      .ptr-badge { align-self: center; }
+    }
   </style>
 </head>
 <body>
@@ -472,56 +631,83 @@
             Smart Library Management System
             <span id="engine-badge" class="badge"><span id="engine-dot" class="live-dot"></span> <span id="engine-label">C++17 Live Engine</span></span>
           </h1>
-          <p class="subtitle">CSE 2103 Group C · Bounded Array · Singly Linked List · LIFO Stack · Circular FIFO Queue</p>
+          <p class="subtitle">CSE 2103 Group C · Interactive Visualizer for Array, Linked List, Stack &amp; Circular Queue</p>
         </div>
       </div>
-      <div class="btn-row" style="margin-top:0">
-        <button class="ghost" id="btn-seed-demo" type="button">Load Viva Demo Dataset</button>
+      <div class="header-actions">
+        <button class="purple" id="btn-seed-demo" type="button">Load Viva Demo (3 Books)</button>
         <button class="secondary" id="btn-seed" type="button">+ Sample Book 101</button>
-        <button class="secondary" id="btn-refresh" type="button">Sync State</button>
+        <button class="secondary" id="btn-refresh" type="button">Sync</button>
       </div>
     </header>
 
-    <div id="status-banner" class="status-banner" role="status">
-      <span id="status-text">Connected to authoritative C++ LibraryManager on loopback HTTP adapter.</span>
+    <!-- Mobile / Tablet Section Jump Pills -->
+    <nav class="quick-nav" aria-label="Jump to section">
+      <a href="#sec-controls">Add / Borrow</a>
+      <a href="#sec-catalogue">Catalogue Array</a>
+      <a href="#sec-stack">Return Stack</a>
+      <a href="#sec-queue">Circular Queue</a>
+      <a href="#sec-history">History List</a>
+      <a href="#sec-maint">Maintenance</a>
+    </nav>
+
+    <!-- Easy 3-Step Visual Guide -->
+    <section class="guide-strip" aria-label="Quick guide">
+      <div class="guide-step">
+        <span class="step-num" style="background:var(--cat-color);">1</span>
+        <div><strong>Add Books:</strong> Tap <em>Load Viva Demo</em> or add your own book ID to populate the <strong>Bounded Array</strong>.</div>
+      </div>
+      <div class="guide-step">
+        <span class="step-num" style="background:var(--queue-color);">2</span>
+        <div><strong>Borrow &amp; Queue:</strong> Borrowing an available book logs <strong>History</strong>; borrowing it again queues in the <strong>Circular Queue</strong>.</div>
+      </div>
+      <div class="guide-step">
+        <span class="step-num" style="background:var(--stack-color);">3</span>
+        <div><strong>Return &amp; Process:</strong> Returning pushes onto the <strong>LIFO Stack</strong>; <em>Process FIFO Head</em> lends to the next waiter.</div>
+      </div>
+    </section>
+
+    <div id="status-banner" class="status-banner" role="status" aria-live="polite">
+      <span id="status-text">Connecting to Smart Library engine...</span>
       <span id="status-code" class="status-pill">READY</span>
     </div>
 
     <!-- KPI Telemetry Strip -->
     <section class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-label">Catalogue Array</div>
+      <div class="kpi-card cat">
+        <div class="kpi-label" style="color:var(--cat-color);">Catalogue Array</div>
         <div class="kpi-value"><span id="kpi-cat">0</span><span class="kpi-sub" id="kpi-cat-cap">/ 100</span></div>
         <div class="kpi-sub" id="kpi-avail">0 available · 0 borrowed</div>
-        <div class="progress-track"><div id="bar-cat" class="progress-fill" style="width:0%;background:var(--accent);"></div></div>
+        <div class="progress-track"><div id="bar-cat" class="progress-fill" style="width:0%;background:var(--cat-color);"></div></div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Recent Returns Stack</div>
+      <div class="kpi-card stack">
+        <div class="kpi-label" style="color:var(--stack-color);">Return Stack (LIFO)</div>
         <div class="kpi-value"><span id="kpi-stack">0</span><span class="kpi-sub" id="kpi-stack-cap">/ 100</span></div>
         <div class="kpi-sub" id="kpi-stack-top">Top: empty</div>
-        <div class="progress-track"><div id="bar-stack" class="progress-fill" style="width:0%;background:var(--ok);"></div></div>
+        <div class="progress-track"><div id="bar-stack" class="progress-fill" style="width:0%;background:var(--stack-color);"></div></div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-label">Circular Request Queue</div>
+      <div class="kpi-card queue">
+        <div class="kpi-label" style="color:var(--queue-color);">Circular Queue (FIFO)</div>
         <div class="kpi-value"><span id="kpi-queue">0</span><span class="kpi-sub" id="kpi-queue-cap">/ 100</span></div>
         <div class="kpi-sub" id="kpi-queue-ptr">front=0 · rear=0</div>
-        <div class="progress-track"><div id="bar-queue" class="progress-fill" style="width:0%;background:var(--warn);"></div></div>
+        <div class="progress-track"><div id="bar-queue" class="progress-fill" style="width:0%;background:var(--queue-color);"></div></div>
       </div>
-      <div class="kpi-card">
-        <div class="kpi-label">History Linked List</div>
+      <div class="kpi-card hist">
+        <div class="kpi-label" style="color:var(--hist-color);">History Linked List</div>
         <div class="kpi-value"><span id="kpi-hist">0</span><span class="kpi-sub">nodes</span></div>
         <div class="kpi-sub" id="kpi-hist-tx">nextTxId = 1</div>
-        <div class="progress-track"><div id="bar-hist" class="progress-fill" style="width:100%;background:var(--purple);opacity:0.45;"></div></div>
+        <div class="progress-track"><div id="bar-hist" class="progress-fill" style="width:100%;background:var(--hist-color);opacity:0.45;"></div></div>
       </div>
     </section>
 
     <!-- Primary Controls -->
-    <section class="controls-grid">
-      <div class="card">
+    <section id="sec-controls" class="controls-grid">
+      <div class="card theme-cat">
         <div class="card-header">
-          <span class="card-title">Add Book to Catalogue</span>
-          <span class="complexity-tag">Array Insert · O(n)</span>
+          <span class="card-title">Add New Book</span>
+          <span class="complexity-tag">Insert · O(n)</span>
         </div>
+        <p class="ds-explain">Positive unique ID required. Automatically trims whitespace and rejects duplicates.</p>
         <form id="form-add" class="inline-form">
           <input id="add-id" class="id-input" type="number" min="1" placeholder="ID (101)" required />
           <input id="add-title" class="grow" type="text" placeholder="Book Title" required />
@@ -530,11 +716,12 @@
         </form>
       </div>
 
-      <div class="card">
+      <div class="card theme-queue">
         <div class="card-header">
-          <span class="card-title">Search &amp; Circulation Control</span>
+          <span class="card-title">Quick Search &amp; Circulation</span>
           <span class="complexity-tag">Atomic · O(n)</span>
         </div>
+        <p class="ds-explain">Enter any Book ID to check availability, borrow (or join waiting queue), or return to the stack.</p>
         <form id="form-circ" class="inline-form">
           <input id="circ-id" class="id-input" type="number" min="1" placeholder="Book ID" required />
           <button type="button" id="btn-search" class="secondary">Search ID</button>
@@ -546,15 +733,18 @@
 
     <!-- Main Structures Workspace -->
     <section class="structures-grid">
-      <!-- 1. Catalogue Table -->
-      <div class="card">
+      <!-- 1. Catalogue -->
+      <div id="sec-catalogue" class="card theme-cat">
         <div class="card-header">
-          <span class="card-title">1. Book Catalogue (Bounded Array)</span>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input id="cat-filter" type="search" placeholder="Filter ID, title, author..." style="padding:5px 9px;font-size:0.8rem;width:185px;" />
+          <span class="card-title" style="color:var(--cat-color);">1. Book Catalogue (Bounded Array)</span>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%;max-width:290px;justify-content:flex-end;">
+            <input id="cat-filter" type="search" placeholder="Filter ID, title, author..." style="padding:6px 10px;font-size:0.84rem;min-height:34px;flex:1;" />
             <span id="cat-meta" class="complexity-tag">0 / 100</span>
           </div>
         </div>
+        <p class="ds-explain">Contiguous slots <code>[0..count-1]</code>. Deleting an item shifts trailing books left to prevent gaps.</p>
+
+        <!-- Desktop/Tablet Table -->
         <div class="table-wrap">
           <table>
             <thead>
@@ -568,19 +758,25 @@
               </tr>
             </thead>
             <tbody id="cat-body">
-              <tr><td colspan="6" class="empty-msg">Catalogue is empty. Add a book or load the Viva Demo Dataset.</td></tr>
+              <tr><td colspan="6" class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</td></tr>
             </tbody>
           </table>
         </div>
+
+        <!-- Android/Mobile Cards -->
+        <div id="cat-mobile-list" class="mobile-book-list">
+          <span class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</span>
+        </div>
       </div>
 
-      <!-- 2 & 3. Stack and Circular Queue -->
+      <!-- 2 & 3. Stack & Circular Queue -->
       <div style="display:flex; flex-direction:column; gap:16px;">
-        <div class="card">
+        <div id="sec-stack" class="card theme-stack">
           <div class="card-header">
-            <span class="card-title">2. Recent Returns Stack (LIFO)</span>
+            <span class="card-title" style="color:var(--stack-color);">2. Recent Returns Stack (LIFO)</span>
             <span id="stack-meta" class="complexity-tag">Push/Pop · O(1)</span>
           </div>
+          <p class="ds-explain">Last In, First Out: returned books stack on top; offset <code>0</code> is the most recent return.</p>
           <div id="stack-view" class="stack-list">
             <span class="empty-msg">Return stack is empty.</span>
           </div>
@@ -589,14 +785,15 @@
           </div>
         </div>
 
-        <div class="card">
+        <div id="sec-queue" class="card theme-queue">
           <div class="card-header">
-            <span class="card-title">3. Waiting Request Queue (Circular FIFO)</span>
+            <span class="card-title" style="color:var(--queue-color);">3. Waiting Request Queue (Circular FIFO)</span>
             <span id="queue-meta" class="complexity-tag">front=0 · O(1)</span>
           </div>
+          <p class="ds-explain">First In, First Out: wraps around modulo slots <code>(front + count) % capacity</code> without shifting.</p>
           <div class="queue-visual-row">
             <div class="queue-ring-box">
-              <svg id="queue-ring-svg" viewBox="0 0 140 140" width="134" height="134" aria-label="Circular Queue Ring"></svg>
+              <svg id="queue-ring-svg" viewBox="0 0 150 150" width="142" height="142" aria-label="Circular Queue Ring"></svg>
             </div>
             <div id="queue-view" class="queue-chain">
               <span class="empty-msg">Waiting request queue is empty.</span>
@@ -611,11 +808,12 @@
     </section>
 
     <!-- 4. Singly Linked History -->
-    <section class="card" style="margin-bottom:18px;">
+    <section id="sec-history" class="card theme-hist" style="margin-bottom:18px;">
       <div class="card-header">
-        <span class="card-title">4. Borrow / Return History (Singly Linked List)</span>
+        <span class="card-title" style="color:var(--hist-color);">4. Borrow / Return History (Singly Linked List)</span>
         <span id="hist-meta" class="complexity-tag">Tail Append · O(1) | Traverse · O(h)</span>
       </div>
+      <p class="ds-explain">Dynamic node chain from <code>HEAD</code> to <code>TAIL</code>. Records preserve historical snapshots even if a book is later deleted.</p>
       <div id="hist-view" class="node-chain">
         <span class="ptr-badge">HEAD</span>
         <span class="arrow">──▶</span>
@@ -624,11 +822,11 @@
     </section>
 
     <!-- Bottom Maintenance & Live Audit Log -->
-    <section class="bottom-grid">
-      <details class="panel" open>
+    <section id="sec-maint" class="bottom-grid">
+      <details class="panel">
         <summary>
           <span style="color:var(--warn);">Educational Maintenance Console (Submenu 14 Parity)</span>
-          <span class="complexity-tag">Log &amp; Offset Inspection</span>
+          <span class="complexity-tag">Tap to Expand</span>
         </summary>
         <div class="maint-grid">
           <div class="maint-row">
@@ -676,16 +874,16 @@
           <button id="btn-clear-log" class="secondary sm" type="button">Clear</button>
         </summary>
         <div id="log-feed" class="log-feed">
-          <div class="log-entry ok">[INIT] Connected to C++17 LibraryManager engine.</div>
+          <div class="log-entry ok">[INIT] Ready.</div>
         </div>
       </details>
     </section>
   </div>
 
   <!-- Inline Edit Book Modal -->
-  <div id="edit-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div id="edit-modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title-heading">
     <div class="modal">
-      <h3>Edit Book Metadata <span id="modal-book-id" class="idx-chip"></span></h3>
+      <h3 id="modal-title-heading">Edit Book Metadata <span id="modal-book-id" class="idx-chip"></span></h3>
       <form id="form-modal-edit">
         <div class="modal-fields">
           <div>
@@ -715,13 +913,14 @@
     let highlightState = { stackOffset: null, queueOffset: null, txId: null };
     let editingBookId = null;
     let isStaticMode = false;
+    let requestBusy = false;
 
     // Client-side fallback mirror used ONLY when hosted statically (e.g. Netlify) without local C++ server
     const staticEngine = (() => {
       const CAP = 100;
-      const catalogue = []; // bounded array [0..count)
+      const catalogue = [];
       let histHead = null, histTail = null, histCount = 0, nextTxId = 1;
-      const stack = []; // LIFO array (index 0 = bottom, last = top)
+      const stack = [];
       const queueArr = new Array(CAP).fill(0);
       let qFront = 0, qCount = 0;
 
@@ -947,7 +1146,7 @@
 
     function setStatus(ok, message, code = '') {
       banner.className = 'status-banner ' + (ok ? 'ok' : 'err');
-      statusText.textContent = message;
+      statusText.textContent = (ok ? '✓ ' : '⚠ ') + message;
       statusCode.textContent = (code || (ok ? 'OK' : 'ERROR')).toUpperCase();
       addLog(ok, `${code ? '[' + code + '] ' : ''}${message}`);
     }
@@ -958,6 +1157,15 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function enableStaticMode() {
+      if (isStaticMode) return;
+      isStaticMode = true;
+      document.getElementById('engine-label').textContent = 'Static Web Demo (Client Mirror)';
+      document.getElementById('engine-dot').style.background = '#fbbf24';
+      document.getElementById('engine-dot').style.boxShadow = '0 0 8px #fbbf24';
+      setStatus(true, 'Interactive browser demo active (static hosting). Run smartlibrary_gui.exe locally for native C++17 server mode.', 'WEB DEMO');
     }
 
     async function apiCall(method, url, body = null) {
@@ -979,16 +1187,9 @@
       return { httpOk: res.ok, data };
     }
 
-    function enableStaticMode() {
-      if (isStaticMode) return;
-      isStaticMode = true;
-      document.getElementById('engine-label').textContent = 'Static Web Demo (Client Mirror)';
-      document.getElementById('engine-dot').style.background = '#f59e0b';
-      document.getElementById('engine-dot').style.boxShadow = '0 0 8px #f59e0b';
-      setStatus(true, 'Static web hosting detected (no local C++ server). Interactive browser simulation active; run smartlibrary_gui.exe locally for native C++17 mode.', 'WEB DEMO');
-    }
-
     async function postAction(url, body, clearHighlights = true) {
+      if (requestBusy) return null;
+      requestBusy = true;
       try {
         if (clearHighlights) {
           highlightState = { stackOffset: null, queueOffset: null, txId: null };
@@ -1000,39 +1201,49 @@
       } catch (err) {
         setStatus(false, 'Network error communicating with C++ server: ' + err.message, 'Error');
         return null;
+      } finally {
+        requestBusy = false;
       }
     }
 
     function renderCircularRing(q) {
       const svg = document.getElementById('queue-ring-svg');
       const slotsToDraw = Math.min(q.capacity, 8);
-      const cx = 70, cy = 70, r = 48;
-      let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(148,163,184,0.22)" stroke-width="2" stroke-dasharray="4 3"/>`;
+      const cx = 75, cy = 75, r = 50;
+      let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(251,191,36,0.28)" stroke-width="2" stroke-dasharray="4 3"/>`;
       const rearIdx = (q.frontIndex + q.count) % q.capacity;
+      const frontSlotVisual = q.frontIndex % slotsToDraw;
+      const rearSlotVisual = rearIdx % slotsToDraw;
 
       for (let i = 0; i < slotsToDraw; i++) {
         const angle = (i / slotsToDraw) * Math.PI * 2 - Math.PI / 2;
         const x = cx + Math.cos(angle) * r;
         const y = cy + Math.sin(angle) * r;
-        const relOffset = (i - (q.frontIndex % slotsToDraw) + slotsToDraw) % slotsToDraw;
+        const relOffset = (i - frontSlotVisual + slotsToDraw) % slotsToDraw;
         const occupied = relOffset < q.items.length;
-        const isFront = q.count > 0 && i === (q.frontIndex % slotsToDraw);
-        const fill = isFront ? '#22c55e' : (occupied ? '#f59e0b' : '#1e293b');
-        const stroke = occupied ? '#f8fafc' : '#475569';
-        const label = occupied ? q.items[relOffset] : '';
-        html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+        const isFront = q.count > 0 && i === frontSlotVisual;
+        const isRear = i === rearSlotVisual && !occupied;
+
+        const fill = isFront ? '#22c55e' : (occupied ? '#fbbf24' : '#162137');
+        const stroke = isFront ? '#bbf7d0' : (isRear ? '#38bdf8' : (occupied ? '#fef3c7' : '#475569'));
+        const label = occupied ? q.items[relOffset] : (isRear ? 'R' : '');
+
+        html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>`;
         if (label) {
-          html += `<text x="${x.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#060a14">${label}</text>`;
+          const textFill = occupied ? '#060a14' : '#38bdf8';
+          html += `<text x="${x.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="800" fill="${textFill}">${label}</text>`;
         }
       }
-      html += `<text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#f8fafc">F:${q.frontIndex} R:${rearIdx}</text>`;
-      html += `<text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="8.5" fill="#94a3b8">size ${q.count}/${q.capacity}</text>`;
+      html += `<text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#f8fafc">F:${q.frontIndex} · R:${rearIdx}</text>`;
+      html += `<text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="8.5" fill="#94a3b8">${q.count}/${q.capacity} used</text>`;
       svg.innerHTML = html;
     }
 
     function renderCatalogueTable(cat) {
       const filter = document.getElementById('cat-filter').value.trim().toLowerCase();
       const catBody = document.getElementById('cat-body');
+      const mobileList = document.getElementById('cat-mobile-list');
+
       const filtered = cat.items
         .map((b, idx) => ({ b, idx }))
         .filter(({ b }) => !filter ||
@@ -1041,11 +1252,13 @@
           b.author.toLowerCase().includes(filter));
 
       if (cat.items.length === 0) {
-        catBody.innerHTML = '<tr><td colspan="6" class="empty-msg">Catalogue is empty. Add a book or load the Viva Demo Dataset.</td></tr>';
+        catBody.innerHTML = '<tr><td colspan="6" class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</td></tr>';
+        mobileList.innerHTML = '<span class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</span>';
         return;
       }
       if (filtered.length === 0) {
         catBody.innerHTML = '<tr><td colspan="6" class="empty-msg">No books match your filter.</td></tr>';
+        mobileList.innerHTML = '<span class="empty-msg">No books match your filter.</span>';
         return;
       }
 
@@ -1057,12 +1270,31 @@
           <td>${escapeHtml(b.author)}</td>
           <td><span class="pill ${b.available ? 'avail' : 'borrowed'}">${b.available ? 'Available' : 'Borrowed'}</span></td>
           <td style="display:flex;gap:5px;flex-wrap:wrap;">
-            <button class="sm ${b.available ? 'ok' : 'secondary'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow' : 'Queue'}</button>
-            ${!b.available ? `<button class="sm warn" onclick="quickReturn(${b.id})">Return</button>` : ''}
+            <button class="sm ${b.available ? 'ok' : 'warn'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow' : 'Queue'}</button>
+            ${!b.available ? `<button class="sm secondary" onclick="quickReturn(${b.id})">Return</button>` : ''}
             <button class="sm secondary" onclick="openEditModal(${b.id})">Edit</button>
             <button class="sm danger" onclick="quickDelete(${b.id})">Del</button>
           </td>
         </tr>
+      `).join('');
+
+      mobileList.innerHTML = filtered.map(({ b, idx }) => `
+        <div class="mobile-book-card">
+          <div class="mobile-book-top">
+            <div><span class="idx-chip">[${idx}]</span> <strong>ID ${b.id}</strong></div>
+            <span class="pill ${b.available ? 'avail' : 'borrowed'}">${b.available ? 'Available' : 'Borrowed'}</span>
+          </div>
+          <div class="mobile-book-title">${escapeHtml(b.title)}</div>
+          <div class="mobile-book-author">by ${escapeHtml(b.author)}</div>
+          <div class="mobile-book-actions">
+            <button class="sm ${b.available ? 'ok' : 'warn'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow Book' : 'Join Queue'}</button>
+            ${!b.available
+              ? `<button class="sm secondary" onclick="quickReturn(${b.id})">Return Book</button>`
+              : `<button class="sm secondary" onclick="openEditModal(${b.id})">Edit Info</button>`}
+            ${!b.available ? `<button class="sm secondary" onclick="openEditModal(${b.id})">Edit Info</button>` : ''}
+            <button class="sm danger" onclick="quickDelete(${b.id})">Delete</button>
+          </div>
+        </div>
       `).join('');
     }
 
@@ -1133,7 +1365,7 @@
           queueView.innerHTML = '<span class="arrow">FRONT →</span>' + q.items.map((id, offset) => {
             const physIdx = (q.frontIndex + offset) % q.capacity;
             const hl = highlightState.queueOffset === offset ? 'highlight' : '';
-            return `<div class="slot-box ${hl}" style="gap:8px;padding:6px 10px;"><span>ID <strong>${id}</strong></span><span class="idx-chip">off:${offset} [slot ${physIdx}]</span></div>`;
+            return `<div class="slot-box q-item ${hl}" style="gap:8px;padding:6px 10px;"><span>ID <strong>${id}</strong></span><span class="idx-chip">off:${offset} [slot ${physIdx}]</span></div>`;
           }).join('<span class="arrow">→</span>') + '<span class="arrow">→ REAR</span>';
         }
 
@@ -1156,7 +1388,7 @@
                   <span class="act-tag ${actCls}">${escapeHtml(node.action)}</span>
                 </div>
                 <div>Book <strong>${node.bookId}</strong> · ${escapeHtml(node.title)}</div>
-                ${idx === h.items.length - 1 ? '<div style="font-size:0.7rem;color:var(--purple);margin-top:2px;">(TAIL NODE)</div>' : ''}
+                ${idx === h.items.length - 1 ? '<div style="font-size:0.7rem;color:var(--hist-color);margin-top:2px;">(TAIL NODE)</div>' : ''}
               </div>
             `;
           }).join('<span class="arrow">──▶</span>') + '<span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
@@ -1181,8 +1413,16 @@
       document.getElementById('edit-modal-backdrop').classList.add('open');
     };
 
-    document.getElementById('btn-modal-cancel').addEventListener('click', () => {
+    function closeEditModal() {
       document.getElementById('edit-modal-backdrop').classList.remove('open');
+    }
+
+    document.getElementById('btn-modal-cancel').addEventListener('click', closeEditModal);
+    document.getElementById('edit-modal-backdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'edit-modal-backdrop') closeEditModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeEditModal();
     });
 
     document.getElementById('form-modal-edit').addEventListener('submit', async (e) => {
@@ -1193,7 +1433,7 @@
         title: document.getElementById('modal-title').value,
         author: document.getElementById('modal-author').value
       });
-      document.getElementById('edit-modal-backdrop').classList.remove('open');
+      closeEditModal();
     });
 
     document.getElementById('cat-filter').addEventListener('input', () => {
@@ -1202,8 +1442,13 @@
 
     document.getElementById('form-add').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const idVal = Number(document.getElementById('add-id').value);
+      if (!Number.isInteger(idVal) || idVal <= 0) {
+        setStatus(false, 'Book ID must be a positive whole number.', 'Invalid');
+        return;
+      }
       const res = await postAction('/api/books/add', {
-        id: Number(document.getElementById('add-id').value),
+        id: idVal,
         title: document.getElementById('add-title').value,
         author: document.getElementById('add-author').value
       });
@@ -1212,8 +1457,8 @@
 
     document.getElementById('btn-search').addEventListener('click', async () => {
       const id = Number(document.getElementById('circ-id').value);
-      if (!id) {
-        setStatus(false, 'Enter a Book ID to search.', 'Invalid');
+      if (!Number.isInteger(id) || id <= 0) {
+        setStatus(false, 'Enter a positive Book ID to search.', 'Invalid');
         return;
       }
       const { data } = await apiCall('GET', `/api/books/search?id=${encodeURIComponent(id)}`);
@@ -1243,16 +1488,22 @@
     });
 
     document.getElementById('btn-seed-demo').addEventListener('click', async () => {
-      await apiCall('POST', '/api/books/add', { id: 101, title: 'Data Structures', author: 'Seymour Lipschutz' });
-      await apiCall('POST', '/api/books/add', { id: 102, title: 'Introduction to Algorithms', author: 'Cormen et al.' });
-      await apiCall('POST', '/api/books/add', { id: 103, title: 'Operating System Concepts', author: 'Silberschatz' });
-      await apiCall('POST', '/api/circulation/borrow', { id: 101 });
-      await apiCall('POST', '/api/circulation/borrow', { id: 101 });
-      await apiCall('POST', '/api/circulation/borrow', { id: 102 });
-      await apiCall('POST', '/api/circulation/borrow', { id: 102 });
-      await apiCall('POST', '/api/circulation/return', { id: 102 });
-      setStatus(true, 'Loaded Viva Demo Dataset (3 books, queue wraparound setup, return stack & history populated).', 'Demo');
-      await refreshState();
+      if (requestBusy) return;
+      requestBusy = true;
+      try {
+        await apiCall('POST', '/api/books/add', { id: 101, title: 'Data Structures', author: 'Seymour Lipschutz' });
+        await apiCall('POST', '/api/books/add', { id: 102, title: 'Introduction to Algorithms', author: 'Cormen et al.' });
+        await apiCall('POST', '/api/books/add', { id: 103, title: 'Operating System Concepts', author: 'Silberschatz' });
+        await apiCall('POST', '/api/circulation/borrow', { id: 101 });
+        await apiCall('POST', '/api/circulation/borrow', { id: 101 });
+        await apiCall('POST', '/api/circulation/borrow', { id: 102 });
+        await apiCall('POST', '/api/circulation/borrow', { id: 102 });
+        await apiCall('POST', '/api/circulation/return', { id: 102 });
+        setStatus(true, 'Loaded Viva Demo Dataset (3 books, queue wraparound, return stack & history populated).', 'Demo');
+        await refreshState();
+      } finally {
+        requestBusy = false;
+      }
     });
 
     // Maintenance Handlers
