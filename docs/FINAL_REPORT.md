@@ -106,7 +106,7 @@ ConsoleUI (whole-line parsing, menu 0..15, submenu 1..7)
 ## 7. Test Results & Verification
 
 - **Compiler**: MinGW-w64 G++ 16.2.0 (`-std=c++17 -Wall -Wextra -Wpedantic`), CMake 4.4.4, Ninja 1.13.2.
-- **Debug & Release CTest**: **5 / 5 suites passed** in both Debug and Release builds (**229 / 229 total assertions passed**, exit code `0`).
+- **Debug & Release CTest**: **5 / 5 suites passed** in both Debug and Release builds (**235 / 235 total assertions passed**, exit code `0`).
 - **Static Analysis (`cppcheck`)**: 0 errors and 0 warnings across all 10 source files.
 - **Coverage**: All test IDs `T01` through `T38` verified, including optional GUI parity via `smartlibrary_gui.exe` (detailed evidence in `docs/TEST_RESULTS.md`).
 
@@ -134,8 +134,8 @@ ctest --test-dir build-release --output-on-failure:
 2/5 Test #2: StructureTests ...................   Passed    0.03 sec
 3/5 Test #3: ManagerTests .....................   Passed    0.03 sec
 4/5 Test #4: ConsoleTests .....................   Passed    0.03 sec
-5/5 Test #5: GuiParityTests ...................   Passed    0.03 sec
-100% tests passed out of 5 (229 / 229 assertions passed)
+5/5 Test #5: GuiParityTests ...................   Passed    0.03 sec (20 / 20)
+100% tests passed out of 5 (235 / 235 assertions passed)
 ```
 
 ---

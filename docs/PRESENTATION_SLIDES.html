@@ -2,161 +2,391 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smart Library Management System — Presentation Slides (CSE 2103 Group C)</title>
+  <title>Smart Library Management System — Final Showcase Presentation (CSE 2103 Group C)</title>
   <style>
     @page { size: landscape; margin: 0; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0b1120; color: #f8fafc; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #070b14; color: #f8fafc; }
     .slide {
       width: 100vw;
       height: 100vh;
-      padding: 44px 56px;
+      padding: 38px 52px 28px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       page-break-after: always;
-      background: linear-gradient(135deg, #0b1120 0%, #111827 100%);
-      border-bottom: 1px solid #1e293b;
+      background: radial-gradient(circle at 12% 8%, rgba(56, 189, 248, 0.14), transparent 40%),
+                  radial-gradient(circle at 88% 85%, rgba(167, 139, 250, 0.12), transparent 38%),
+                  linear-gradient(135deg, #070b14 0%, #0f172a 100%);
     }
-    .tag { color: #38bdf8; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
-    h1 { font-size: 38px; margin: 12px 0; color: #f8fafc; }
-    h2 { font-size: 28px; margin-bottom: 18px; color: #38bdf8; }
-    p, li { font-size: 19px; line-height: 1.55; color: #cbd5e1; }
-    ul { margin-left: 26px; }
-    li { margin-bottom: 10px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .tag {
+      display: inline-block;
+      color: #38bdf8;
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .speaker-pill {
+      float: right;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+    h1 { font-size: 38px; margin: 10px 0 8px; color: #f8fafc; line-height: 1.15; }
+    h2 { font-size: 26px; margin: 6px 0 14px; color: #38bdf8; }
+    p, li { font-size: 17px; line-height: 1.48; color: #cbd5e1; }
+    ul, ol { margin-left: 24px; }
+    li { margin-bottom: 8px; }
+    code {
+      font-family: Consolas, monospace;
+      font-size: 15px;
+      background: rgba(30, 41, 59, 0.9);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #e2e8f0;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
     .box {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: rgba(22, 33, 55, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-top: 3px solid var(--c, #38bdf8);
       border-radius: 10px;
-      padding: 20px;
+      padding: 16px 18px;
     }
-    .box h3 { color: #f8fafc; font-size: 20px; margin-bottom: 8px; }
-    .box p { font-size: 16px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 16px; }
-    th, td { border: 1px solid #334155; padding: 10px 12px; text-align: left; }
-    th { background: #1e293b; color: #38bdf8; }
-    .footer { display: flex; justify-content: space-between; font-size: 13px; color: #64748b; border-top: 1px solid #1e293b; padding-top: 12px; }
+    .box h3 { color: #f8fafc; font-size: 18px; margin-bottom: 6px; }
+    .box p { font-size: 15px; color: #cbd5e1; }
+
+    .stat-card {
+      background: rgba(22, 33, 55, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-top: 3px solid var(--c, #22c55e);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-num { font-size: 32px; font-weight: 800; color: var(--c, #22c55e); margin-bottom: 4px; }
+    .stat-label { font-size: 14px; color: #cbd5e1; font-weight: 600; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 14.5px; }
+    th, td { border: 1px solid rgba(148, 163, 184, 0.25); padding: 8px 11px; text-align: left; vertical-align: top; }
+    th { background: rgba(30, 41, 59, 0.95); color: #38bdf8; font-weight: 700; }
+    td { background: rgba(15, 23, 42, 0.6); color: #e2e8f0; }
+
+    .diagram-wrap {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: #64748b;
+      border-top: 1px solid rgba(148, 163, 184, 0.16);
+      padding-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <!-- Slide 1 -->
+
+  <!-- SLIDE 1: TITLE & TEAM -->
   <section class="slide">
     <div>
-      <div class="tag">CSE 2103 · Data Structures Lab · Group C</div>
+      <div class="tag">CSE 2103 · Data Structures Lab · Project Showcase</div>
       <h1>Smart Library Management System</h1>
-      <p style="font-size:22px; color:#94a3b8; margin-top:10px;">
+      <p style="font-size:20px; color:#94a3b8; margin-top:6px;">
         Manual C++17 Implementation Using Bounded Array, Singly Linked List, Stack &amp; Circular Queue
       </p>
     </div>
-    <div class="grid-2">
-      <div class="box">
-        <h3>Team Details</h3>
-        <p>Group C · Student IDs: 252311282, 252311284, 252311285</p>
-        <p>Zero STL containers used for core structures.</p>
-      </div>
-      <div class="box">
-        <h3>Project Goal</h3>
-        <p>Model real-world library inventory, borrow/return history, recent returns, and waiting queues with guaranteed invariants and failure atomicity.</p>
-      </div>
-    </div>
-    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 1 / 6</span></div>
-  </section>
 
-  <!-- Slide 2 -->
-  <section class="slide">
-    <div>
-      <div class="tag">Core Design</div>
-      <h2>Four Custom Data Structures</h2>
-      <div class="grid-2">
-        <div class="box">
-          <h3>1. BookCatalogue (Bounded Array)</h3>
-          <p>Raw <code>Book*</code> array (default 100). Maintains dense prefix <code>[0, count)</code> with left-shift deletion in O(n) and O(1) append.</p>
-        </div>
-        <div class="box">
-          <h3>2. HistoryList (Singly Linked List)</h3>
-          <p><code>head</code> + <code>tail</code> pointers for O(1) chronological append, monotonic 64-bit TxIDs, and safe node deletion.</p>
-        </div>
-        <div class="box">
-          <h3>3. ReturnStack (Bounded Array Stack)</h3>
-          <p>LIFO <code>int*</code> stack tracking recently returned IDs in O(1) with strict overflow/underflow checks.</p>
-        </div>
-        <div class="box">
-          <h3>4. RequestQueue (Circular Array Queue)</h3>
-          <p>FIFO circular buffer using <code>(front + count) % capacity</code> to reuse slots in O(1) without shifting.</p>
-        </div>
+    <div class="grid-3">
+      <div class="box" style="--c:#38bdf8;">
+        <h3>Group C Members</h3>
+        <p><strong>ID: 252311282</strong> — Architecture &amp; Catalogue</p>
+        <p><strong>ID: 252311284</strong> — Circulation, Stack &amp; History</p>
+        <p><strong>ID: 252311285</strong> — Circular Queue, UI &amp; Verification</p>
+      </div>
+      <div class="box" style="--c:#34d399;">
+        <h3>Core Mandate Met</h3>
+        <p>100% manual memory &amp; structures in <strong>C++17</strong>.</p>
+        <p><strong>Zero</strong> STL containers (<code>vector</code>, <code>list</code>, <code>stack</code>, <code>queue</code>, <code>map</code>) or <code>&lt;algorithm&gt;</code> substitutes.</p>
+      </div>
+      <div class="box" style="--c:#c084fc;">
+        <h3>Dual Interface</h3>
+        <p><strong>Console App:</strong> <code>smartlibrary.exe</code> (Menu 0–15)</p>
+        <p><strong>Local Web GUI:</strong> <code>smartlibrary_gui.exe</code></p>
+        <p><strong>Live Demo:</strong> https://smartlibraries.netlify.app/</p>
       </div>
     </div>
-    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 2 / 6</span></div>
+
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 1 / 8</span></div>
   </section>
 
-  <!-- Slide 3 -->
+  <!-- SLIDE 2: PROBLEM STATEMENT & REAL-LIFE RELEVANCE -->
   <section class="slide">
     <div>
-      <div class="tag">System Architecture</div>
-      <h2>Layered Design &amp; Failure Atomicity</h2>
-      <ul>
-        <li><strong>UI Layer:</strong> <code>ConsoleUI</code> (whole-line safe parsing, Menu 0–15) + optional <code>smartlibrary_gui</code> loopback server sharing the identical engine.</li>
-        <li><strong>Coordinator:</strong> <code>LibraryManager</code> enforces consistency — blocks deleting borrowed/pending books and prevents return when stack is full.</li>
-        <li><strong>Failure Atomicity:</strong> Pre-allocates <code>HistoryList::PendingNode</code> before mutating catalogue, stack, or queue; failed allocations leave state untouched.</li>
-        <li><strong>Educational Maintenance:</strong> Submenu 14 inspects/edits historical logs and stack/queue offsets without altering live availability.</li>
-      </ul>
+      <span class="speaker-pill">Speaker: ID 252311282</span>
+      <div class="tag">Problem Statement &amp; Real-Life Relevance</div>
+      <h2>Why a Library Needs Four Different Data Structures</h2>
+      <p style="margin-bottom:14px;">
+        A real library handles four distinct workloads. No single linear structure performs well for all four simultaneously, so our system assigns each task to the structure that models it best:
+      </p>
+      <div class="grid-4">
+        <div class="box" style="--c:#38bdf8;">
+          <h3>1. Book Inventory</h3>
+          <p><strong>Bounded Array</strong><br>Stores unique-ID books in contiguous slots <code>[0..count)</code> for fast traversal and dense storage.</p>
+        </div>
+        <div class="box" style="--c:#c084fc;">
+          <h3>2. Transaction Log</h3>
+          <p><strong>Singly Linked List</strong><br>Grows chronologically with every borrow/return without shifting existing records.</p>
+        </div>
+        <div class="box" style="--c:#34d399;">
+          <h3>3. Return Desk</h3>
+          <p><strong>Bounded Stack (LIFO)</strong><br>Tracks recently returned books where the latest return sits on top for inspection.</p>
+        </div>
+        <div class="box" style="--c:#fbbf24;">
+          <h3>4. Waiting Line</h3>
+          <p><strong>Circular Queue (FIFO)</strong><br>Serves waiting borrowers fairly in exact request order when a book is unavailable.</p>
+        </div>
+      </div>
     </div>
-    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 3 / 6</span></div>
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 2 / 8</span></div>
   </section>
 
-  <!-- Slide 4 -->
+  <!-- SLIDE 3: STRUCTURE SELECTION VS ALTERNATIVES (RUBRIC 15%) -->
   <section class="slide">
     <div>
-      <div class="tag">Live Demonstration</div>
-      <h2>Demo Flow (Console &amp; Live Web Dashboard)</h2>
-      <ol style="margin-left:26px; font-size:19px; line-height:1.7; color:#cbd5e1;">
-        <li>Add Book <code>101</code> (<em>Data Structures / Seymour Lipschutz</em>) &amp; Search <code>101</code>.</li>
-        <li>Borrow <code>101</code> (Available → Borrowed, Tx#1 appended to HistoryList).</li>
-        <li>Borrow <code>101</code> again → Enqueued in Circular <code>RequestQueue</code>.</li>
-        <li>Return <code>101</code> → Pushed to <code>ReturnStack</code> (top = 101), Tx#2 appended.</li>
-        <li>Process FIFO Head → Dequeues <code>101</code>, re-borrows, Tx#3 appended.</li>
-        <li>Edge cases: Pop empty stack (<code>Stack Underflow!</code>) &amp; Search <code>999</code> (<code>Book not found.</code>).</li>
-      </ol>
-    </div>
-    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 4 / 6</span></div>
-  </section>
-
-  <!-- Slide 5 -->
-  <section class="slide">
-    <div>
-      <div class="tag">Complexity &amp; Verification</div>
-      <h2>Complexity Summary &amp; Test Results</h2>
+      <span class="speaker-pill">Speaker: ID 252311282 / 252311284</span>
+      <div class="tag">Rubric: Choice &amp; Justification (15%)</div>
+      <h2>Why Each Structure Was Selected Over Alternatives</h2>
       <table>
         <thead>
-          <tr><th>Operation</th><th>Structure</th><th>Time</th><th>Space</th></tr>
+          <tr>
+            <th>Component</th>
+            <th>Selected Structure</th>
+            <th>Alternative Considered</th>
+            <th>Technical Justification</th>
+          </tr>
         </thead>
         <tbody>
-          <tr><td>Add / Search / Delete / Edit Book</td><td>Bounded Array</td><td>O(n)</td><td>O(1)</td></tr>
-          <tr><td>Append History / Traverse</td><td>Singly Linked List</td><td>O(1) / O(h)</td><td>O(1) per node</td></tr>
-          <tr><td>Push / Pop Return</td><td>Bounded Stack</td><td>O(1)</td><td>O(1)</td></tr>
-          <tr><td>Enqueue / Dequeue Request</td><td>Circular Queue</td><td>O(1)</td><td>O(1)</td></tr>
+          <tr>
+            <td><strong>Catalogue</strong><br><code>BookCatalogue</code></td>
+            <td>Bounded Raw Array (<code>Book*</code>)</td>
+            <td>Linked List / BST</td>
+            <td>Contiguous memory with zero per-node pointer overhead for a bounded 100-book shelf; cleanly demonstrates dense left-shift deletion in O(n).</td>
+          </tr>
+          <tr>
+            <td><strong>History</strong><br><code>HistoryList</code></td>
+            <td>Singly Linked List (<code>head</code> + <code>tail</code>)</td>
+            <td>Dynamic Array / Doubly Linked List</td>
+            <td>O(1) chronological tail append with zero array reallocation or shifting; only forward chronological traversal is needed, saving a <code>prev</code> pointer per node.</td>
+          </tr>
+          <tr>
+            <td><strong>Recent Returns</strong><br><code>ReturnStack</code></td>
+            <td>Bounded Array Stack (<code>int*</code>)</td>
+            <td>Queue / Linked Stack</td>
+            <td>LIFO matches physical desk stacking (last returned = top); array backing avoids per-push heap allocation and demonstrates overflow/underflow clearly.</td>
+          </tr>
+          <tr>
+            <td><strong>Waiting Requests</strong><br><code>RequestQueue</code></td>
+            <td>Circular Array Queue (<code>int*</code>)</td>
+            <td>Linear Array Queue</td>
+            <td>Linear array queue wastes vacated front slots or forces O(q) shifting; circular modulo indexing <code>(front + count) % cap</code> keeps enqueue/dequeue O(1).</td>
+          </tr>
         </tbody>
       </table>
-      <p style="margin-top:16px;">
-        <strong>Verified:</strong> 5/5 CTest suites pass in Debug &amp; Release (<strong>229 / 229 assertions</strong>, T01–T38) · <code>cppcheck</code> 0 warnings.
-      </p>
     </div>
-    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 5 / 6</span></div>
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 3 / 8</span></div>
   </section>
 
-  <!-- Slide 6 -->
+  <!-- SLIDE 4: ARCHITECTURE & FAILURE ATOMICITY -->
   <section class="slide">
     <div>
-      <div class="tag">Limitations &amp; Conclusion</div>
-      <h2>Limitations &amp; Future Extensions</h2>
+      <span class="speaker-pill">Speaker: ID 252311284</span>
+      <div class="tag">System Design &amp; Architecture</div>
+      <h2>Layered Architecture &amp; Failure Atomicity</h2>
+      <div class="diagram-wrap" style="margin-bottom:14px;">
+        <svg viewBox="0 0 820 185" width="100%" height="175" xmlns="http://www.w3.org/2000/svg" style="font-family: Segoe UI, sans-serif; font-size: 12px;">
+          <rect x="18" y="16" width="175" height="52" rx="8" fill="#0c4a6e" stroke="#38bdf8" stroke-width="1.8"/>
+          <text x="105" y="38" text-anchor="middle" font-weight="700" fill="#f8fafc">ConsoleUI (C++17)</text>
+          <text x="105" y="56" text-anchor="middle" fill="#bae6fd">Menu 0–15 · Whole-line safe</text>
+
+          <rect x="18" y="108" width="175" height="52" rx="8" fill="#4c1d95" stroke="#c084fc" stroke-width="1.8"/>
+          <text x="105" y="130" text-anchor="middle" font-weight="700" fill="#f8fafc">Web GUI (HTTP/JSON)</text>
+          <text x="105" y="148" text-anchor="middle" fill="#ddd6fe">127.0.0.1:8080 · Mutex-safe</text>
+
+          <rect x="270" y="56" width="220" height="68" rx="8" fill="#78350f" stroke="#fbbf24" stroke-width="2"/>
+          <text x="380" y="83" text-anchor="middle" font-weight="800" fill="#fffbeb" font-size="14">LibraryManager</text>
+          <text x="380" y="102" text-anchor="middle" fill="#fde68a">Consistency &amp; Atomic Commits</text>
+
+          <rect x="570" y="8" width="232" height="36" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+          <text x="686" y="30" text-anchor="middle" font-weight="700" fill="#7dd3fc">BookCatalogue (Bounded Array)</text>
+
+          <rect x="570" y="52" width="232" height="36" rx="6" fill="#0f172a" stroke="#c084fc" stroke-width="1.5"/>
+          <text x="686" y="74" text-anchor="middle" font-weight="700" fill="#d8b4fe">HistoryList (Singly Linked)</text>
+
+          <rect x="570" y="96" width="232" height="36" rx="6" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+          <text x="686" y="118" text-anchor="middle" font-weight="700" fill="#6ee7b7">ReturnStack (LIFO Array)</text>
+
+          <rect x="570" y="140" width="232" height="36" rx="6" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="686" y="162" text-anchor="middle" font-weight="700" fill="#fde68a">RequestQueue (Circular FIFO)</text>
+
+          <line x1="193" y1="42" x2="270" y2="80" stroke="#94a3b8" stroke-width="1.8"/>
+          <line x1="193" y1="134" x2="270" y2="98" stroke="#94a3b8" stroke-width="1.8"/>
+          <line x1="490" y1="76" x2="570" y2="26" stroke="#94a3b8" stroke-width="1.8"/>
+          <line x1="490" y1="84" x2="570" y2="70" stroke="#94a3b8" stroke-width="1.8"/>
+          <line x1="490" y1="94" x2="570" y2="114" stroke="#94a3b8" stroke-width="1.8"/>
+          <line x1="490" y1="104" x2="570" y2="158" stroke="#94a3b8" stroke-width="1.8"/>
+        </svg>
+      </div>
       <ul>
-        <li><strong>Current Scope:</strong> Volatile in-memory state, bounded 100-item default capacities, no student accounts or fines.</li>
-        <li><strong>Future Extensions:</strong> File/SQLite persistence, member accounts, BST/hash indexing for O(log n)/O(1) catalogue lookup.</li>
-        <li><strong>Conclusion:</strong> Successfully delivers a leak-free, student-readable C++17 data structures solution ready for viva defense.</li>
+        <li><strong>Failure Atomicity:</strong> <code>borrowBook</code>, <code>returnBook</code>, and <code>processNextRequest</code> pre-allocate <code>HistoryList::PendingNode</code> <em>before</em> changing book status, stack, or queue—if allocation fails, zero state changes occur.</li>
+        <li><strong>Strict Invariants:</strong> Cannot delete borrowed/queued books; cannot return when stack is full; Maintenance edits never alter live availability.</li>
       </ul>
     </div>
-    <div class="footer"><span>SmartLibrary · Group C</span><span>Slide 6 / 6 · Thank You / Questions</span></div>
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 4 / 8</span></div>
   </section>
+
+  <!-- SLIDE 5: COMPLEXITY ANALYSIS -->
+  <section class="slide">
+    <div>
+      <span class="speaker-pill">Speaker: ID 252311284 / 252311285</span>
+      <div class="tag">Complexity Analysis</div>
+      <h2>Time &amp; Space Complexity Across All Operations</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Structure / Coordinator</th>
+            <th>Operation</th>
+            <th>Time</th>
+            <th>Extra Space</th>
+            <th>Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>BookCatalogue</code></td><td><code>add</code> / <code>remove</code> / <code>find</code> / <code>editMetadata</code> / <code>traverse</code></td><td><strong>O(n)</strong></td><td>O(1)</td><td>Linear scan for uniqueness/lookup; left-shift on delete.</td></tr>
+          <tr><td><code>HistoryList</code></td><td><code>append</code> (with <code>m_tail</code>)</td><td><strong>O(1)</strong></td><td>O(1) / node</td><td>Direct insertion at tail pointer without walking list.</td></tr>
+          <tr><td><code>HistoryList</code></td><td><code>find</code> / <code>update</code> / <code>remove</code> / <code>traverse</code></td><td><strong>O(h)</strong></td><td>O(1)</td><td>Single linked traversal from <code>m_head</code>; updates <code>m_tail</code>.</td></tr>
+          <tr><td><code>ReturnStack</code></td><td><code>push</code> / <code>pop</code> / <code>peek</code> / <code>updateAt</code></td><td><strong>O(1)</strong></td><td>O(1)</td><td>Direct array slot <code>m_count - 1 - topOffset</code>.</td></tr>
+          <tr><td><code>RequestQueue</code></td><td><code>enqueue</code> / <code>dequeue</code> / <code>peek</code> / <code>updateAt</code></td><td><strong>O(1)</strong></td><td>O(1)</td><td>Circular modulo index <code>(m_front + offset) % m_capacity</code>.</td></tr>
+          <tr><td><code>LibraryManager</code></td><td><code>borrowBook</code> / <code>returnBook</code> / <code>processNextRequest</code></td><td><strong>O(n)</strong></td><td>O(1)</td><td>Catalogue lookup O(n) + O(1) atomic stack/queue/history commit.</td></tr>
+          <tr><td><code>LibraryManager</code></td><td><code>deleteBook</code></td><td><strong>O(n + q)</strong></td><td>O(1)</td><td>Checks catalogue O(n) and pending queue requests O(q).</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:10px;">
+        <strong>Total Space Complexity:</strong> <code>O(B + S + Q + h)</code> for fixed capacities <code>B=100, S=100, Q=100</code> and <code>h</code> history nodes.
+      </p>
+    </div>
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 5 / 8</span></div>
+  </section>
+
+  <!-- SLIDE 6: LIVE DEMO SCRIPT & RESPONSIVE UI -->
+  <section class="slide">
+    <div>
+      <span class="speaker-pill">Speaker: ID 252311285</span>
+      <div class="tag">Live Demonstration</div>
+      <h2>Showcase Demo Walkthrough (Console &amp; Live Website)</h2>
+      <div class="grid-2">
+        <div class="box" style="--c:#38bdf8;">
+          <h3>Live Demo Sequence</h3>
+          <ol style="font-size:15.5px; line-height:1.65; color:#e2e8f0;">
+            <li>Add Book <code>101</code> (<em>Data Structures / Seymour Lipschutz</em>) &amp; Search <code>101</code>.</li>
+            <li>Borrow <code>101</code> &rarr; Status <code>Borrowed</code>, History <code>Tx#1 BORROW</code>.</li>
+            <li>Borrow <code>101</code> again &rarr; Enqueued in <strong>Circular Queue</strong>.</li>
+            <li>Return <code>101</code> &rarr; Pushed to <strong>Return Stack</strong> (<code>TOP = 101</code>), <code>Tx#2 RETURN</code>.</li>
+            <li><strong>Process FIFO Head</strong> &rarr; Dequeues <code>101</code>, re-borrows, <code>Tx#3 BORROW</code>.</li>
+            <li>Edge Cases: Pop empty stack (<code>Stack Underflow!</code>), Search <code>999</code> (<code>Book not found.</code>), &amp; Maintenance Console.</li>
+          </ol>
+        </div>
+        <div class="box" style="--c:#fbbf24;">
+          <h3>Live Web Visualizer Highlights</h3>
+          <ul style="font-size:15.5px; line-height:1.65;">
+            <li><strong>Real-Time SVG Circular Ring:</strong> Shows <code>F:</code> front &amp; <code>R:</code> rear wraparound.</li>
+            <li><strong>Linked List Pointer Chain:</strong> Visual <code>HEAD &rarr; Tx# &rarr; TAIL &rarr; NULL</code>.</li>
+            <li><strong>Responsive UI:</strong> Adapts cleanly across Android phones (mobile cards), tablets, and desktop browsers.</li>
+            <li><strong>Live URL:</strong> <code>https://smartlibraries.netlify.app/</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 6 / 8</span></div>
+  </section>
+
+  <!-- SLIDE 7: VERIFICATION & QUALITY RESULTS -->
+  <section class="slide">
+    <div>
+      <span class="speaker-pill">Speaker: ID 252311285</span>
+      <div class="tag">Verification &amp; Testing (T01–T38)</div>
+      <h2>Actual Build, Test &amp; Quality Metrics</h2>
+      <div class="grid-4" style="margin-bottom:18px;">
+        <div class="stat-card" style="--c:#22c55e;">
+          <div class="stat-num">5 / 5</div>
+          <div class="stat-label">CTest Suites Passed<br>(Debug &amp; Release)</div>
+        </div>
+        <div class="stat-card" style="--c:#38bdf8;">
+          <div class="stat-num">235 / 235</div>
+          <div class="stat-label">Verified Assertions<br>(T01 through T38)</div>
+        </div>
+        <div class="stat-card" style="--c:#c084fc;">
+          <div class="stat-num">0</div>
+          <div class="stat-label">Compiler &amp; <code>cppcheck</code><br>Warnings (10 files)</div>
+        </div>
+        <div class="stat-card" style="--c:#fbbf24;">
+          <div class="stat-num">100 / 100</div>
+          <div class="stat-label">Netlify Mobile Performance<br>&amp; Accessibility</div>
+        </div>
+      </div>
+      <ul>
+        <li><strong>Test Coverage:</strong> Isolated boundary tests (empty, full, wraparound, single-slot capacity 1, Rule-of-Five deep copies), 300-step seeded invariant stress test (<code>T35</code>), allocation failure injection (<code>T33</code>), EOF/overflow parsing (<code>T34</code>), and GUI API parity (<code>T38</code>).</li>
+        <li><strong>Standalone Windows Binaries:</strong> Compiled with MinGW-w64 G++ 16.2.0 (<code>-std=c++17 -static</code>) and CMake 4.4.4.</li>
+      </ul>
+    </div>
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 7 / 8</span></div>
+  </section>
+
+  <!-- SLIDE 8: LIMITATIONS, FUTURE WORK & Q&A -->
+  <section class="slide">
+    <div>
+      <span class="speaker-pill">All 3 Members · Viva Q&amp;A</span>
+      <div class="tag">Limitations &amp; Conclusion</div>
+      <h2>Current Limitations, Future Improvements &amp; Questions</h2>
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="box" style="--c:#f43f5e;">
+          <h3>Honest Current Limitations</h3>
+          <ul style="font-size:15.5px;">
+            <li><strong>Volatile Storage:</strong> Data stays in RAM and resets on exit (no database or file persistence per course scope).</li>
+            <li><strong>Fixed Array Bounds:</strong> Catalogue, Stack, and Queue default to 100 slots.</li>
+            <li><strong>No Member Accounts:</strong> Requests store Book ID only; repeated requests are allowed.</li>
+          </ul>
+        </div>
+        <div class="box" style="--c:#34d399;">
+          <h3>Future Extensions</h3>
+          <ul style="font-size:15.5px;">
+            <li>File / SQLite persistence &amp; student account authentication.</li>
+            <li>Due dates, fine calculation, and multi-copy book counts.</li>
+            <li>Hash table or BST indexing for O(1) / O(log n) catalogue lookup.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="box" style="--c:#38bdf8; text-align:center;">
+        <h3>Thank You! — Questions &amp; Live Demo Ready</h3>
+        <p>Group C (IDs: <code>252311282</code>, <code>252311284</code>, <code>252311285</code>) · Live Site: <code>https://smartlibraries.netlify.app/</code></p>
+      </div>
+    </div>
+    <div class="footer"><span>SmartLibrary · CSE 2103 Group C</span><span>Slide 8 / 8</span></div>
+  </section>
+
 </body>
 </html>
