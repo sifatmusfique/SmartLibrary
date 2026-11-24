@@ -41,6 +41,5 @@ Then open **http://127.0.0.1:8080** in your browser.
 - `include/` & `src/` — Core data structures, `LibraryManager`, `ConsoleUI`, and loopback HTTP/JSON GUI adapter.
 - `web/` — Static HTML/CSS/JS live visualizer (`index.html`).
 - `tests/` — 5 automated test suites covering `T01–T38` (`235 / 235` assertions passing in Debug & Release).
-- `docs/` — Architecture flowchart, test evidence (`TEST_RESULTS.md`), viva guide (`VIVA_GUIDE.md`), final report (`FINAL_REPORT.md`, `SmartLibrary_Final_Report.pdf`), and presentation slides (`SmartLibrary_Presentation.pdf`).
-- `references/` — Original CSE 2103 project guidelines PDF and Group C proposal DOCX (unmodified).
-- `.agent/skills/` — Project-specific Antigravity rubric, milestone, and test verification skills.
+- `docs/` — Architecture flowchart, test evidence (`TEST_RESULTS.md`), viva guide (`VIVA_GUIDE.md`), final report (`SmartLibrary_Final_Report.pdf`), presentation slides (`SmartLibrary_Presentation.pdf`), and 3-student walkthrough (`SmartLibrary_Website_Walkthrough_3_Students.pdf`).
+- `references/` — Original CSE 2103 project guidelines PDF and Group C proposal DOCX.

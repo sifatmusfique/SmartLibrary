@@ -4,6 +4,7 @@ cmake-build-*/
 out/
 .vs/
 .vscode/
+.agent/
 *.exe
 *.o
 *.obj
