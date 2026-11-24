@@ -119,7 +119,101 @@
     .header-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Clean UI Production Mode Toggle Switch */
+    .mode-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 12px;
+      min-height: 40px;
+      border-radius: 999px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border-strong);
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .mode-switch:hover { border-color: var(--cat-color); }
+    .mode-switch input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      min-height: 0;
+      pointer-events: none;
+    }
+    .switch-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+    .switch-track {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      border-radius: 999px;
+      background: #334155;
+      transition: background 0.22s ease;
+      flex-shrink: 0;
+    }
+    .switch-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f8fafc;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .mode-switch input:checked + .switch-track {
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+    }
+    .mode-switch input:checked + .switch-track .switch-thumb {
+      transform: translateX(18px);
+    }
+
+    /* ==================== CLEAN PRODUCTION DASHBOARD MODE ==================== */
+    body.clean-mode .guide-strip,
+    body.clean-mode .ds-explain,
+    body.clean-mode .complexity-tag,
+    body.clean-mode .brand .subtitle,
+    body.clean-mode .edu-only,
+    body.clean-mode .queue-ring-box,
+    body.clean-mode #maint-panel,
+    body.clean-mode .col-slot,
+    body.clean-mode .ptr-badge,
+    body.clean-mode .node-chain .arrow,
+    body.clean-mode .queue-chain .arrow,
+    body.clean-mode .tail-note {
+      display: none !important;
+    }
+    body.clean-mode .bottom-grid {
+      grid-template-columns: 1fr;
+    }
+    body.clean-mode .node-chain {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    body.clean-mode .ll-node {
+      min-width: 0;
+      border-color: var(--border-strong);
+    }
+    body.clean-mode .slot-box.q-item {
+      border-color: var(--border);
+      background: var(--surface-alt);
+    }
+    body.clean-mode .mode-switch {
+      border-color: rgba(34, 197, 94, 0.55);
+      background: rgba(20, 83, 45, 0.25);
     }
 
     /* Quick Jump Bar (especially helpful on phones/tablets) */
@@ -635,20 +729,25 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="purple" id="btn-seed-demo" type="button">Load Viva Demo (3 Books)</button>
-        <button class="secondary" id="btn-seed" type="button">+ Sample Book 101</button>
+        <button class="purple edu-only" id="btn-seed-demo" type="button">Load Viva Demo (3 Books)</button>
+        <button class="secondary edu-only" id="btn-seed" type="button">+ Sample Book 101</button>
         <button class="secondary" id="btn-refresh" type="button">Sync</button>
+        <label class="mode-switch" title="Slide to switch to clean production dashboard">
+          <span class="switch-label">Clean UI</span>
+          <input id="toggle-clean-ui" type="checkbox" role="switch" aria-checked="false" />
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
       </div>
     </header>
 
     <!-- Mobile / Tablet Section Jump Pills -->
     <nav class="quick-nav" aria-label="Jump to section">
       <a href="#sec-controls">Add / Borrow</a>
-      <a href="#sec-catalogue">Catalogue Array</a>
-      <a href="#sec-stack">Return Stack</a>
-      <a href="#sec-queue">Circular Queue</a>
-      <a href="#sec-history">History List</a>
-      <a href="#sec-maint">Maintenance</a>
+      <a href="#sec-catalogue" data-edu-text="Catalogue Array" data-clean-text="Inventory">Catalogue Array</a>
+      <a href="#sec-stack" data-edu-text="Return Stack" data-clean-text="Returns">Return Stack</a>
+      <a href="#sec-queue" data-edu-text="Circular Queue" data-clean-text="Waitlist">Circular Queue</a>
+      <a href="#sec-history" data-edu-text="History List" data-clean-text="History">History List</a>
+      <a href="#sec-maint" class="edu-only">Maintenance</a>
     </nav>
 
     <!-- Easy 3-Step Visual Guide -->
@@ -675,26 +774,26 @@
     <!-- KPI Telemetry Strip -->
     <section class="kpi-grid">
       <div class="kpi-card cat">
-        <div class="kpi-label" style="color:var(--cat-color);">Catalogue Array</div>
+        <div class="kpi-label" style="color:var(--cat-color);" data-edu-text="Catalogue Array" data-clean-text="Total Books">Catalogue Array</div>
         <div class="kpi-value"><span id="kpi-cat">0</span><span class="kpi-sub" id="kpi-cat-cap">/ 100</span></div>
         <div class="kpi-sub" id="kpi-avail">0 available · 0 borrowed</div>
         <div class="progress-track"><div id="bar-cat" class="progress-fill" style="width:0%;background:var(--cat-color);"></div></div>
       </div>
       <div class="kpi-card stack">
-        <div class="kpi-label" style="color:var(--stack-color);">Return Stack (LIFO)</div>
+        <div class="kpi-label" style="color:var(--stack-color);" data-edu-text="Return Stack (LIFO)" data-clean-text="Recent Returns">Return Stack (LIFO)</div>
         <div class="kpi-value"><span id="kpi-stack">0</span><span class="kpi-sub" id="kpi-stack-cap">/ 100</span></div>
         <div class="kpi-sub" id="kpi-stack-top">Top: empty</div>
         <div class="progress-track"><div id="bar-stack" class="progress-fill" style="width:0%;background:var(--stack-color);"></div></div>
       </div>
       <div class="kpi-card queue">
-        <div class="kpi-label" style="color:var(--queue-color);">Circular Queue (FIFO)</div>
+        <div class="kpi-label" style="color:var(--queue-color);" data-edu-text="Circular Queue (FIFO)" data-clean-text="Waiting List">Circular Queue (FIFO)</div>
         <div class="kpi-value"><span id="kpi-queue">0</span><span class="kpi-sub" id="kpi-queue-cap">/ 100</span></div>
         <div class="kpi-sub" id="kpi-queue-ptr">front=0 · rear=0</div>
         <div class="progress-track"><div id="bar-queue" class="progress-fill" style="width:0%;background:var(--queue-color);"></div></div>
       </div>
       <div class="kpi-card hist">
-        <div class="kpi-label" style="color:var(--hist-color);">History Linked List</div>
-        <div class="kpi-value"><span id="kpi-hist">0</span><span class="kpi-sub">nodes</span></div>
+        <div class="kpi-label" style="color:var(--hist-color);" data-edu-text="History Linked List" data-clean-text="Transactions">History Linked List</div>
+        <div class="kpi-value"><span id="kpi-hist">0</span><span class="kpi-sub" data-edu-text="nodes" data-clean-text="records">nodes</span></div>
         <div class="kpi-sub" id="kpi-hist-tx">nextTxId = 1</div>
         <div class="progress-track"><div id="bar-hist" class="progress-fill" style="width:100%;background:var(--hist-color);opacity:0.45;"></div></div>
       </div>
@@ -718,14 +817,14 @@
 
       <div class="card theme-queue">
         <div class="card-header">
-          <span class="card-title">Quick Search &amp; Circulation</span>
+          <span class="card-title" data-edu-text="Quick Search &amp; Circulation" data-clean-text="Book Lookup &amp; Circulation">Quick Search &amp; Circulation</span>
           <span class="complexity-tag">Atomic · O(n)</span>
         </div>
         <p class="ds-explain">Enter any Book ID to check availability, borrow (or join waiting queue), or return to the stack.</p>
         <form id="form-circ" class="inline-form">
           <input id="circ-id" class="id-input" type="number" min="1" placeholder="Book ID" required />
           <button type="button" id="btn-search" class="secondary">Search ID</button>
-          <button type="button" id="btn-borrow" class="ok">Borrow / Queue</button>
+          <button type="button" id="btn-borrow" class="ok" data-edu-text="Borrow / Queue" data-clean-text="Borrow / Waitlist">Borrow / Queue</button>
           <button type="button" id="btn-return" class="warn">Return</button>
         </form>
       </div>
@@ -736,7 +835,7 @@
       <!-- 1. Catalogue -->
       <div id="sec-catalogue" class="card theme-cat">
         <div class="card-header">
-          <span class="card-title" style="color:var(--cat-color);">1. Book Catalogue (Bounded Array)</span>
+          <span class="card-title" style="color:var(--cat-color);" data-edu-text="1. Book Catalogue (Bounded Array)" data-clean-text="Book Inventory">1. Book Catalogue (Bounded Array)</span>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%;max-width:290px;justify-content:flex-end;">
             <input id="cat-filter" type="search" placeholder="Filter ID, title, author..." style="padding:6px 10px;font-size:0.84rem;min-height:34px;flex:1;" />
             <span id="cat-meta" class="complexity-tag">0 / 100</span>
@@ -749,7 +848,7 @@
           <table>
             <thead>
               <tr>
-                <th>Slot</th>
+                <th class="col-slot">Slot</th>
                 <th>ID</th>
                 <th>Title</th>
                 <th>Author</th>
@@ -758,14 +857,14 @@
               </tr>
             </thead>
             <tbody id="cat-body">
-              <tr><td colspan="6" class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</td></tr>
+              <tr><td colspan="6" class="empty-msg">No books in inventory yet.</td></tr>
             </tbody>
           </table>
         </div>
 
         <!-- Android/Mobile Cards -->
         <div id="cat-mobile-list" class="mobile-book-list">
-          <span class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</span>
+          <span class="empty-msg">No books in inventory yet.</span>
         </div>
       </div>
 
@@ -773,21 +872,21 @@
       <div style="display:flex; flex-direction:column; gap:16px;">
         <div id="sec-stack" class="card theme-stack">
           <div class="card-header">
-            <span class="card-title" style="color:var(--stack-color);">2. Recent Returns Stack (LIFO)</span>
+            <span class="card-title" style="color:var(--stack-color);" data-edu-text="2. Recent Returns Stack (LIFO)" data-clean-text="Recent Returns">2. Recent Returns Stack (LIFO)</span>
             <span id="stack-meta" class="complexity-tag">Push/Pop · O(1)</span>
           </div>
           <p class="ds-explain">Last In, First Out: returned books stack on top; offset <code>0</code> is the most recent return.</p>
           <div id="stack-view" class="stack-list">
-            <span class="empty-msg">Return stack is empty.</span>
+            <span class="empty-msg">No recent returns.</span>
           </div>
           <div class="btn-row">
-            <button id="btn-pop-stack" class="secondary sm" type="button">Pop Top Return</button>
+            <button id="btn-pop-stack" class="secondary sm" type="button" data-edu-text="Pop Top Return" data-clean-text="Clear Latest Return">Pop Top Return</button>
           </div>
         </div>
 
         <div id="sec-queue" class="card theme-queue">
           <div class="card-header">
-            <span class="card-title" style="color:var(--queue-color);">3. Waiting Request Queue (Circular FIFO)</span>
+            <span class="card-title" style="color:var(--queue-color);" data-edu-text="3. Waiting Request Queue (Circular FIFO)" data-clean-text="Waiting List">3. Waiting Request Queue (Circular FIFO)</span>
             <span id="queue-meta" class="complexity-tag">front=0 · O(1)</span>
           </div>
           <p class="ds-explain">First In, First Out: wraps around modulo slots <code>(front + count) % capacity</code> without shifting.</p>
@@ -796,12 +895,12 @@
               <svg id="queue-ring-svg" viewBox="0 0 150 150" width="142" height="142" aria-label="Circular Queue Ring"></svg>
             </div>
             <div id="queue-view" class="queue-chain">
-              <span class="empty-msg">Waiting request queue is empty.</span>
+              <span class="empty-msg">No pending requests.</span>
             </div>
           </div>
           <div class="btn-row">
-            <button id="btn-process-queue" class="ok sm" type="button">Process FIFO Head</button>
-            <button id="btn-cancel-queue" class="danger sm" type="button">Cancel Head Request</button>
+            <button id="btn-process-queue" class="ok sm" type="button" data-edu-text="Process FIFO Head" data-clean-text="Lend to Next Waiter">Process FIFO Head</button>
+            <button id="btn-cancel-queue" class="danger sm" type="button" data-edu-text="Cancel Head Request" data-clean-text="Remove Next Waiter">Cancel Head Request</button>
           </div>
         </div>
       </div>
@@ -810,7 +909,7 @@
     <!-- 4. Singly Linked History -->
     <section id="sec-history" class="card theme-hist" style="margin-bottom:18px;">
       <div class="card-header">
-        <span class="card-title" style="color:var(--hist-color);">4. Borrow / Return History (Singly Linked List)</span>
+        <span class="card-title" style="color:var(--hist-color);" data-edu-text="4. Borrow / Return History (Singly Linked List)" data-clean-text="Circulation History">4. Borrow / Return History (Singly Linked List)</span>
         <span id="hist-meta" class="complexity-tag">Tail Append · O(1) | Traverse · O(h)</span>
       </div>
       <p class="ds-explain">Dynamic node chain from <code>HEAD</code> to <code>TAIL</code>. Records preserve historical snapshots even if a book is later deleted.</p>
@@ -823,7 +922,7 @@
 
     <!-- Bottom Maintenance & Live Audit Log -->
     <section id="sec-maint" class="bottom-grid">
-      <details class="panel">
+      <details id="maint-panel" class="panel">
         <summary>
           <span style="color:var(--warn);">Educational Maintenance Console (Submenu 14 Parity)</span>
           <span class="complexity-tag">Tap to Expand</span>
@@ -914,6 +1013,30 @@
     let editingBookId = null;
     let isStaticMode = false;
     let requestBusy = false;
+    const cleanToggle = document.getElementById('toggle-clean-ui');
+
+    function isCleanMode() {
+      return document.body.classList.contains('clean-mode');
+    }
+
+    function applyCleanMode(enabled, persist = true) {
+      document.body.classList.toggle('clean-mode', enabled);
+      cleanToggle.checked = enabled;
+      cleanToggle.setAttribute('aria-checked', enabled ? 'true' : 'false');
+      document.querySelectorAll('[data-edu-text][data-clean-text]').forEach((el) => {
+        el.textContent = enabled ? el.dataset.cleanText : el.dataset.eduText;
+      });
+      if (persist) {
+        try { localStorage.setItem('smartlibrary_clean_ui', enabled ? '1' : '0'); } catch (_) {}
+      }
+      if (latestState) {
+        renderState(latestState);
+      }
+    }
+
+    cleanToggle.addEventListener('change', (e) => {
+      applyCleanMode(e.target.checked, true);
+    });
 
     // Client-side fallback mirror used ONLY when hosted statically (e.g. Netlify) without local C++ server
     const staticEngine = (() => {
@@ -1264,7 +1387,7 @@
 
       catBody.innerHTML = filtered.map(({ b, idx }) => `
         <tr>
-          <td><span class="idx-chip">[${idx}]</span></td>
+          <td class="col-slot"><span class="idx-chip">[${idx}]</span></td>
           <td><strong>${b.id}</strong></td>
           <td>${escapeHtml(b.title)}</td>
           <td>${escapeHtml(b.author)}</td>
@@ -1281,7 +1404,7 @@
       mobileList.innerHTML = filtered.map(({ b, idx }) => `
         <div class="mobile-book-card">
           <div class="mobile-book-top">
-            <div><span class="idx-chip">[${idx}]</span> <strong>ID ${b.id}</strong></div>
+            <div><span class="idx-chip col-slot">[${idx}]</span> <strong>ID ${b.id}</strong></div>
             <span class="pill ${b.available ? 'avail' : 'borrowed'}">${b.available ? 'Available' : 'Borrowed'}</span>
           </div>
           <div class="mobile-book-title">${escapeHtml(b.title)}</div>
@@ -1296,6 +1419,102 @@
           </div>
         </div>
       `).join('');
+    }
+
+    function renderState(state) {
+      latestState = state;
+      const clean = isCleanMode();
+
+      // KPI Updates
+      const cat = state.catalogue;
+      const availCount = cat.items.filter(b => b.available).length;
+      document.getElementById('kpi-cat').textContent = cat.count;
+      document.getElementById('kpi-cat-cap').textContent = `/ ${cat.capacity}`;
+      document.getElementById('kpi-avail').textContent = `${availCount} available · ${cat.count - availCount} borrowed`;
+      document.getElementById('bar-cat').style.width = `${Math.min(100, (cat.count / cat.capacity) * 100)}%`;
+      document.getElementById('cat-meta').textContent = `${cat.count} / ${cat.capacity} slots`;
+      renderCatalogueTable(cat);
+
+      // Return Stack
+      const st = state.returnStack;
+      document.getElementById('kpi-stack').textContent = st.count;
+      document.getElementById('kpi-stack-cap').textContent = `/ ${st.capacity}`;
+      document.getElementById('kpi-stack-top').textContent = st.items.length
+        ? (clean ? `Latest: Book #${st.items[0]}` : `Top Book ID: ${st.items[0]}`)
+        : (clean ? 'No recent returns' : 'Top: empty');
+      document.getElementById('bar-stack').style.width = `${Math.min(100, (st.count / st.capacity) * 100)}%`;
+      document.getElementById('stack-meta').textContent = `${st.count} / ${st.capacity} · LIFO O(1)`;
+
+      const stackView = document.getElementById('stack-view');
+      if (st.items.length === 0) {
+        stackView.innerHTML = `<span class="empty-msg">${clean ? 'No recent returns.' : 'Return stack is empty.'}</span>`;
+      } else {
+        stackView.innerHTML = st.items.map((id, offset) => {
+          const hl = highlightState.stackOffset === offset ? 'highlight' : '';
+          const rightLabel = clean
+            ? (offset === 0 ? 'Latest' : `#${offset + 1}`)
+            : (offset === 0 ? 'TOP · offset 0' : 'offset ' + offset);
+          return `
+            <div class="slot-box ${offset === 0 ? 'top' : ''} ${hl}">
+              <span>Book #<strong>${id}</strong></span>
+              <span>${rightLabel}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Circular Request Queue
+      const q = state.requestQueue;
+      const rearIdx = (q.frontIndex + q.count) % q.capacity;
+      document.getElementById('kpi-queue').textContent = q.count;
+      document.getElementById('kpi-queue-cap').textContent = `/ ${q.capacity}`;
+      document.getElementById('kpi-queue-ptr').textContent = clean
+        ? (q.items.length ? `Next in line: Book #${q.items[0]}` : 'No pending waits')
+        : `front=${q.frontIndex} · rear=${rearIdx}`;
+      document.getElementById('bar-queue').style.width = `${Math.min(100, (q.count / q.capacity) * 100)}%`;
+      document.getElementById('queue-meta').textContent = `front=${q.frontIndex} · rear=${rearIdx} · O(1)`;
+      renderCircularRing(q);
+
+      const queueView = document.getElementById('queue-view');
+      if (q.items.length === 0) {
+        queueView.innerHTML = `<span class="empty-msg">${clean ? 'No pending requests.' : 'Waiting request queue is empty.'}</span>`;
+      } else {
+        queueView.innerHTML = '<span class="arrow">FRONT →</span>' + q.items.map((id, offset) => {
+          const physIdx = (q.frontIndex + offset) % q.capacity;
+          const hl = highlightState.queueOffset === offset ? 'highlight' : '';
+          const metaChip = clean
+            ? `<span class="idx-chip">#${offset + 1}</span>`
+            : `<span class="idx-chip">off:${offset} [slot ${physIdx}]</span>`;
+          return `<div class="slot-box q-item ${hl}" style="gap:8px;padding:6px 10px;"><span>Book <strong>#${id}</strong></span>${metaChip}</div>`;
+        }).join('<span class="arrow">→</span>') + '<span class="arrow">→ REAR</span>';
+      }
+
+      // Singly Linked History List
+      const h = state.history;
+      document.getElementById('kpi-hist').textContent = h.count;
+      document.getElementById('kpi-hist-tx').textContent = clean ? 'Recorded events' : `nextTxId = ${h.nextTxId}`;
+      document.getElementById('hist-meta').textContent = `${h.count} nodes · nextTxId=${h.nextTxId}`;
+      const histView = document.getElementById('hist-view');
+      if (h.items.length === 0) {
+        histView.innerHTML = clean
+          ? '<span class="empty-msg">No transactions recorded yet.</span>'
+          : '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
+      } else {
+        histView.innerHTML = '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span>' + h.items.map((node, idx) => {
+          const hl = highlightState.txId === node.transactionId ? 'highlight' : '';
+          const actCls = node.action === 'BORROW' ? 'act-borrow' : 'act-return';
+          return `
+            <div class="ll-node ${hl}">
+              <div class="tx-row">
+                <span class="tx-id">${clean ? '#' + node.transactionId : 'Tx#' + node.transactionId}</span>
+                <span class="act-tag ${actCls}">${escapeHtml(node.action)}</span>
+              </div>
+              <div>Book <strong>${node.bookId}</strong> · ${escapeHtml(node.title)}</div>
+              ${idx === h.items.length - 1 ? '<div class="tail-note" style="font-size:0.7rem;color:var(--hist-color);margin-top:2px;">(TAIL NODE)</div>' : ''}
+            </div>
+          `;
+        }).join('<span class="arrow">──▶</span>') + '<span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
+      }
     }
 
     async function refreshState() {
@@ -1313,86 +1532,7 @@
             state = await res.json();
           }
         }
-        latestState = state;
-
-        // KPI Updates
-        const cat = state.catalogue;
-        const availCount = cat.items.filter(b => b.available).length;
-        document.getElementById('kpi-cat').textContent = cat.count;
-        document.getElementById('kpi-cat-cap').textContent = `/ ${cat.capacity}`;
-        document.getElementById('kpi-avail').textContent = `${availCount} available · ${cat.count - availCount} borrowed`;
-        document.getElementById('bar-cat').style.width = `${Math.min(100, (cat.count / cat.capacity) * 100)}%`;
-        document.getElementById('cat-meta').textContent = `${cat.count} / ${cat.capacity} slots`;
-        renderCatalogueTable(cat);
-
-        // Return Stack
-        const st = state.returnStack;
-        document.getElementById('kpi-stack').textContent = st.count;
-        document.getElementById('kpi-stack-cap').textContent = `/ ${st.capacity}`;
-        document.getElementById('kpi-stack-top').textContent = st.items.length ? `Top Book ID: ${st.items[0]}` : 'Top: empty';
-        document.getElementById('bar-stack').style.width = `${Math.min(100, (st.count / st.capacity) * 100)}%`;
-        document.getElementById('stack-meta').textContent = `${st.count} / ${st.capacity} · LIFO O(1)`;
-
-        const stackView = document.getElementById('stack-view');
-        if (st.items.length === 0) {
-          stackView.innerHTML = '<span class="empty-msg">Return stack is empty.</span>';
-        } else {
-          stackView.innerHTML = st.items.map((id, offset) => {
-            const hl = highlightState.stackOffset === offset ? 'highlight' : '';
-            return `
-              <div class="slot-box ${offset === 0 ? 'top' : ''} ${hl}">
-                <span>Book ID: <strong>${id}</strong></span>
-                <span>${offset === 0 ? 'TOP · offset 0' : 'offset ' + offset}</span>
-              </div>
-            `;
-          }).join('');
-        }
-
-        // Circular Request Queue
-        const q = state.requestQueue;
-        const rearIdx = (q.frontIndex + q.count) % q.capacity;
-        document.getElementById('kpi-queue').textContent = q.count;
-        document.getElementById('kpi-queue-cap').textContent = `/ ${q.capacity}`;
-        document.getElementById('kpi-queue-ptr').textContent = `front=${q.frontIndex} · rear=${rearIdx}`;
-        document.getElementById('bar-queue').style.width = `${Math.min(100, (q.count / q.capacity) * 100)}%`;
-        document.getElementById('queue-meta').textContent = `front=${q.frontIndex} · rear=${rearIdx} · O(1)`;
-        renderCircularRing(q);
-
-        const queueView = document.getElementById('queue-view');
-        if (q.items.length === 0) {
-          queueView.innerHTML = '<span class="empty-msg">Waiting request queue is empty.</span>';
-        } else {
-          queueView.innerHTML = '<span class="arrow">FRONT →</span>' + q.items.map((id, offset) => {
-            const physIdx = (q.frontIndex + offset) % q.capacity;
-            const hl = highlightState.queueOffset === offset ? 'highlight' : '';
-            return `<div class="slot-box q-item ${hl}" style="gap:8px;padding:6px 10px;"><span>ID <strong>${id}</strong></span><span class="idx-chip">off:${offset} [slot ${physIdx}]</span></div>`;
-          }).join('<span class="arrow">→</span>') + '<span class="arrow">→ REAR</span>';
-        }
-
-        // Singly Linked History List
-        const h = state.history;
-        document.getElementById('kpi-hist').textContent = h.count;
-        document.getElementById('kpi-hist-tx').textContent = `nextTxId = ${h.nextTxId}`;
-        document.getElementById('hist-meta').textContent = `${h.count} nodes · nextTxId=${h.nextTxId}`;
-        const histView = document.getElementById('hist-view');
-        if (h.items.length === 0) {
-          histView.innerHTML = '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
-        } else {
-          histView.innerHTML = '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span>' + h.items.map((node, idx) => {
-            const hl = highlightState.txId === node.transactionId ? 'highlight' : '';
-            const actCls = node.action === 'BORROW' ? 'act-borrow' : 'act-return';
-            return `
-              <div class="ll-node ${hl}">
-                <div class="tx-row">
-                  <span class="tx-id">Tx#${node.transactionId}</span>
-                  <span class="act-tag ${actCls}">${escapeHtml(node.action)}</span>
-                </div>
-                <div>Book <strong>${node.bookId}</strong> · ${escapeHtml(node.title)}</div>
-                ${idx === h.items.length - 1 ? '<div style="font-size:0.7rem;color:var(--hist-color);margin-top:2px;">(TAIL NODE)</div>' : ''}
-              </div>
-            `;
-          }).join('<span class="arrow">──▶</span>') + '<span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
-        }
+        renderState(state);
       } catch (err) {
         setStatus(false, 'Failed to sync state: ' + err.message, 'Error');
       }
@@ -1569,6 +1709,10 @@
         bookId: Number(document.getElementById('mq-id').value)
       });
     });
+
+    try {
+      applyCleanMode(localStorage.getItem('smartlibrary_clean_ui') === '1', false);
+    } catch (_) {}
 
     refreshState();
   </script>
