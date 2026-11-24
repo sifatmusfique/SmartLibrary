@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#070b14" />
-  <title>SmartLibrary · CSE 2103 Live Data Structures Explorer</title>
+  <title>SmartLibrary · Library Management Dashboard</title>
   <style>
     :root {
       --bg: #070b14;
@@ -22,13 +22,12 @@
       --text-soft: #e2e8f0;
       --muted: #94a3b8;
 
-      /* Distinct colorful theme per Data Structure */
       --cat-color: #38bdf8;
       --cat-soft: rgba(56, 189, 248, 0.15);
-      --stack-color: #34d399;
-      --stack-soft: rgba(52, 211, 153, 0.15);
-      --queue-color: #fbbf24;
-      --queue-soft: rgba(251, 191, 36, 0.15);
+      --returns-color: #34d399;
+      --returns-soft: rgba(52, 211, 153, 0.15);
+      --wait-color: #fbbf24;
+      --wait-soft: rgba(251, 191, 36, 0.15);
       --hist-color: #c084fc;
       --hist-soft: rgba(192, 132, 252, 0.15);
 
@@ -94,7 +93,6 @@
       gap: 10px;
       flex-wrap: wrap;
     }
-    .brand .subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
     .badge {
       display: inline-flex;
       align-items: center;
@@ -123,100 +121,7 @@
       gap: 10px;
     }
 
-    /* Clean UI Production Mode Toggle Switch */
-    .mode-switch {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 6px 12px;
-      min-height: 40px;
-      border-radius: 999px;
-      background: var(--surface-alt);
-      border: 1px solid var(--border-strong);
-      cursor: pointer;
-      user-select: none;
-      touch-action: manipulation;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .mode-switch:hover { border-color: var(--cat-color); }
-    .mode-switch input {
-      position: absolute;
-      opacity: 0;
-      width: 0;
-      height: 0;
-      min-height: 0;
-      pointer-events: none;
-    }
-    .switch-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-soft);
-      white-space: nowrap;
-    }
-    .switch-track {
-      position: relative;
-      width: 42px;
-      height: 24px;
-      border-radius: 999px;
-      background: #334155;
-      transition: background 0.22s ease;
-      flex-shrink: 0;
-    }
-    .switch-thumb {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #f8fafc;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
-      transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .mode-switch input:checked + .switch-track {
-      background: linear-gradient(135deg, #22c55e, #0ea5e9);
-    }
-    .mode-switch input:checked + .switch-track .switch-thumb {
-      transform: translateX(18px);
-    }
-
-    /* ==================== CLEAN PRODUCTION DASHBOARD MODE ==================== */
-    body.clean-mode .guide-strip,
-    body.clean-mode .ds-explain,
-    body.clean-mode .complexity-tag,
-    body.clean-mode .brand .subtitle,
-    body.clean-mode .edu-only,
-    body.clean-mode .queue-ring-box,
-    body.clean-mode #maint-panel,
-    body.clean-mode .col-slot,
-    body.clean-mode .ptr-badge,
-    body.clean-mode .node-chain .arrow,
-    body.clean-mode .queue-chain .arrow,
-    body.clean-mode .tail-note {
-      display: none !important;
-    }
-    body.clean-mode .bottom-grid {
-      grid-template-columns: 1fr;
-    }
-    body.clean-mode .node-chain {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 10px;
-    }
-    body.clean-mode .ll-node {
-      min-width: 0;
-      border-color: var(--border-strong);
-    }
-    body.clean-mode .slot-box.q-item {
-      border-color: var(--border);
-      background: var(--surface-alt);
-    }
-    body.clean-mode .mode-switch {
-      border-color: rgba(34, 197, 94, 0.55);
-      background: rgba(20, 83, 45, 0.25);
-    }
-
-    /* Quick Jump Bar (especially helpful on phones/tablets) */
+    /* Quick Jump Bar (phones/tablets) */
     .quick-nav {
       display: none;
       gap: 8px;
@@ -237,36 +142,6 @@
       color: var(--text-soft);
       white-space: nowrap;
       flex-shrink: 0;
-    }
-
-    /* Beginner Friendly How-It-Works Strip */
-    .guide-strip {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .guide-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      background: rgba(15, 23, 42, 0.72);
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 10px 13px;
-      font-size: 0.82rem;
-      color: var(--text-soft);
-    }
-    .step-num {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 0.76rem;
-      flex-shrink: 0;
-      color: #060a14;
     }
 
     /* Status Banner */
@@ -298,7 +173,7 @@
       white-space: nowrap;
     }
 
-    /* KPI Telemetry Strip */
+    /* KPI Strip */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -314,8 +189,8 @@
       box-shadow: var(--shadow);
     }
     .kpi-card.cat { --accent-bar: var(--cat-color); }
-    .kpi-card.stack { --accent-bar: var(--stack-color); }
-    .kpi-card.queue { --accent-bar: var(--queue-color); }
+    .kpi-card.returns { --accent-bar: var(--returns-color); }
+    .kpi-card.wait { --accent-bar: var(--wait-color); }
     .kpi-card.hist { --accent-bar: var(--hist-color); }
 
     .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 700; }
@@ -341,26 +216,20 @@
       min-width: 0;
     }
     .card.theme-cat { border-top: 3px solid var(--cat-color); }
-    .card.theme-stack { border-top: 3px solid var(--stack-color); }
-    .card.theme-queue { border-top: 3px solid var(--queue-color); }
+    .card.theme-returns { border-top: 3px solid var(--returns-color); }
+    .card.theme-wait { border-top: 3px solid var(--wait-color); }
     .card.theme-hist { border-top: 3px solid var(--hist-color); }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 12px;
       gap: 10px;
       flex-wrap: wrap;
     }
     .card-title { font-size: 1.02rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .ds-explain {
-      font-size: 0.81rem;
-      color: var(--muted);
-      margin-bottom: 12px;
-      line-height: 1.45;
-    }
-    .complexity-tag {
+    .meta-tag {
       font-family: var(--mono);
       font-size: 0.73rem;
       padding: 3px 8px;
@@ -412,12 +281,10 @@
     button.ok { background: linear-gradient(135deg, #4ade80, #22c55e); color: #052e16; }
     button.warn { background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #451a03; }
     button.danger { background: linear-gradient(135deg, #fb7185, #e11d48); color: #fff; }
-    button.purple { background: linear-gradient(135deg, #c084fc, #9333ea); color: #fff; }
-    button.ghost { background: transparent; color: var(--cat-color); border: 1px solid rgba(56, 189, 248, 0.45); }
     button.sm { padding: 6px 10px; min-height: 32px; font-size: 0.78rem; border-radius: 7px; }
 
     /* Main Workspace Grid */
-    .structures-grid {
+    .workspace-grid {
       display: grid;
       grid-template-columns: 1.45fr 1fr;
       gap: 16px;
@@ -482,8 +349,8 @@
       font-weight: 600;
     }
 
-    /* Stack & Queue Visualizers */
-    .stack-list {
+    /* Recent Returns & Waiting List */
+    .slot-list {
       display: flex;
       flex-direction: column;
       gap: 7px;
@@ -502,99 +369,51 @@
       font-size: 0.84rem;
     }
     .slot-box.top {
-      border-color: var(--stack-color);
-      background: var(--stack-soft);
-      box-shadow: inset 4px 0 0 var(--stack-color);
+      border-color: var(--returns-color);
+      background: var(--returns-soft);
+      box-shadow: inset 4px 0 0 var(--returns-color);
     }
-    .slot-box.q-item {
-      border-color: rgba(251, 191, 36, 0.4);
-      background: rgba(251, 191, 36, 0.08);
-    }
-    .slot-box.highlight {
-      border-color: #f43f5e;
-      background: var(--danger-soft);
+    .wait-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
     }
 
-    .queue-visual-row {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .queue-ring-box {
-      width: 156px;
-      height: 156px;
-      flex-shrink: 0;
+    /* Circulation History Grid */
+    .history-grid {
       display: grid;
-      place-items: center;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(251, 191, 36, 0.3);
-      border-radius: 12px;
-      padding: 6px;
-    }
-    .queue-chain {
-      flex: 1;
-      min-width: 180px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      align-items: center;
-    }
-
-    /* Singly Linked List */
-    .node-chain {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 9px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
       padding: 4px 0;
     }
-    .ll-node {
+    .history-card {
       background: var(--surface-alt);
-      border: 1px solid rgba(192, 132, 252, 0.45);
+      border: 1px solid var(--border-strong);
       border-radius: 10px;
-      padding: 9px 12px;
+      padding: 10px 12px;
       font-size: 0.82rem;
-      min-width: 165px;
       transition: transform 0.12s, border-color 0.2s;
     }
-    .ll-node:hover { transform: translateY(-1px); border-color: var(--hist-color); }
-    .ll-node.highlight { border-color: var(--queue-color); background: var(--warn-soft); }
-    .ll-node .tx-row {
+    .history-card:hover { transform: translateY(-1px); border-color: var(--hist-color); }
+    .history-card .tx-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
       font-family: var(--mono);
       font-size: 0.76rem;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
     .tx-id { color: var(--hist-color); font-weight: 800; }
     .act-tag { padding: 1px 7px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
     .act-borrow { background: var(--warn-soft); color: #fde68a; }
     .act-return { background: var(--ok-soft); color: #86efac; }
-    .arrow { color: var(--muted); font-family: var(--mono); font-weight: 700; font-size: 0.88rem; }
-    .ptr-badge {
-      font-family: var(--mono);
-      font-size: 0.74rem;
-      font-weight: 700;
-      padding: 4px 9px;
-      border-radius: 6px;
-      background: var(--hist-soft);
-      color: var(--hist-color);
-      border: 1px solid rgba(192, 132, 252, 0.4);
-    }
 
     .empty-msg { color: var(--muted); font-size: 0.86rem; font-style: italic; }
     .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 
-    /* Bottom Maintenance + Audit Feed */
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: 1.3fr 1fr;
-      gap: 16px;
-    }
-
+    /* Activity Feed Panel */
     details.panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -613,14 +432,6 @@
       list-style: none;
     }
     details.panel summary::-webkit-details-marker { display: none; }
-    .maint-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
-    .maint-row {
-      background: rgba(22, 33, 55, 0.72);
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 11px;
-    }
-    .maint-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; margin-bottom: 7px; text-transform: uppercase; }
 
     .log-feed {
       max-height: 250px;
@@ -670,18 +481,13 @@
     .modal-fields input { width: 100%; }
 
     /* ==================== RESPONSIVE BREAKPOINTS ==================== */
-
-    /* Tablets & Small Laptops (<= 1060px) */
     @media (max-width: 1060px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
       .controls-grid { grid-template-columns: 1fr; }
-      .structures-grid { grid-template-columns: 1fr; }
-      .bottom-grid { grid-template-columns: 1fr; }
-      .guide-strip { grid-template-columns: 1fr; }
+      .workspace-grid { grid-template-columns: 1fr; }
       .quick-nav { display: flex; }
     }
 
-    /* Android Phones & Compact Screens (<= 680px) */
     @media (max-width: 680px) {
       body { padding: 12px 12px 36px; }
       header { padding-bottom: 12px; margin-bottom: 12px; }
@@ -694,24 +500,16 @@
       .kpi-value { font-size: 1.35rem; }
 
       .card { padding: 14px; }
-      /* Prevent iOS/Android auto-zoom on input focus (>= 16px) & stack nicely */
       input, select { font-size: 16px; min-height: 44px; width: 100%; }
       input.id-input, input.grow { width: 100%; min-width: 0; flex: 1 1 100%; }
       form.inline-form button { flex: 1 1 46%; min-height: 44px; }
 
       .status-banner { flex-direction: column; align-items: flex-start; gap: 6px; font-size: 0.85rem; }
 
-      /* Switch Desktop Table -> Touch-Friendly Mobile Cards */
       .table-wrap { display: none; }
       .mobile-book-list { display: flex; }
 
-      .queue-visual-row { flex-direction: column; align-items: stretch; }
-      .queue-ring-box { margin: 0 auto; }
-
-      .node-chain { flex-direction: column; align-items: stretch; }
-      .ll-node { width: 100%; }
-      .node-chain .arrow { text-align: center; transform: rotate(90deg); display: inline-block; align-self: center; }
-      .ptr-badge { align-self: center; }
+      .history-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -723,78 +521,53 @@
         <div>
           <h1>
             Smart Library Management System
-            <span id="engine-badge" class="badge"><span id="engine-dot" class="live-dot"></span> <span id="engine-label">C++17 Live Engine</span></span>
+            <span id="engine-badge" class="badge"><span id="engine-dot" class="live-dot"></span> <span id="engine-label">Live Engine</span></span>
           </h1>
-          <p class="subtitle">CSE 2103 Group C · Interactive Visualizer for Array, Linked List, Stack &amp; Circular Queue</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="purple edu-only" id="btn-seed-demo" type="button">Load Viva Demo (3 Books)</button>
-        <button class="secondary edu-only" id="btn-seed" type="button">+ Sample Book 101</button>
         <button class="secondary" id="btn-refresh" type="button">Sync</button>
-        <label class="mode-switch" title="Slide to switch to clean production dashboard">
-          <span class="switch-label">Clean UI</span>
-          <input id="toggle-clean-ui" type="checkbox" role="switch" aria-checked="false" />
-          <span class="switch-track"><span class="switch-thumb"></span></span>
-        </label>
       </div>
     </header>
 
     <!-- Mobile / Tablet Section Jump Pills -->
     <nav class="quick-nav" aria-label="Jump to section">
       <a href="#sec-controls">Add / Borrow</a>
-      <a href="#sec-catalogue" data-edu-text="Catalogue Array" data-clean-text="Inventory">Catalogue Array</a>
-      <a href="#sec-stack" data-edu-text="Return Stack" data-clean-text="Returns">Return Stack</a>
-      <a href="#sec-queue" data-edu-text="Circular Queue" data-clean-text="Waitlist">Circular Queue</a>
-      <a href="#sec-history" data-edu-text="History List" data-clean-text="History">History List</a>
-      <a href="#sec-maint" class="edu-only">Maintenance</a>
+      <a href="#sec-catalogue">Inventory</a>
+      <a href="#sec-returns">Returns</a>
+      <a href="#sec-waitlist">Waitlist</a>
+      <a href="#sec-history">History</a>
     </nav>
-
-    <!-- Easy 3-Step Visual Guide -->
-    <section class="guide-strip" aria-label="Quick guide">
-      <div class="guide-step">
-        <span class="step-num" style="background:var(--cat-color);">1</span>
-        <div><strong>Add Books:</strong> Tap <em>Load Viva Demo</em> or add your own book ID to populate the <strong>Bounded Array</strong>.</div>
-      </div>
-      <div class="guide-step">
-        <span class="step-num" style="background:var(--queue-color);">2</span>
-        <div><strong>Borrow &amp; Queue:</strong> Borrowing an available book logs <strong>History</strong>; borrowing it again queues in the <strong>Circular Queue</strong>.</div>
-      </div>
-      <div class="guide-step">
-        <span class="step-num" style="background:var(--stack-color);">3</span>
-        <div><strong>Return &amp; Process:</strong> Returning pushes onto the <strong>LIFO Stack</strong>; <em>Process FIFO Head</em> lends to the next waiter.</div>
-      </div>
-    </section>
 
     <div id="status-banner" class="status-banner" role="status" aria-live="polite">
       <span id="status-text">Connecting to Smart Library engine...</span>
       <span id="status-code" class="status-pill">READY</span>
     </div>
 
-    <!-- KPI Telemetry Strip -->
+    <!-- KPI Strip -->
     <section class="kpi-grid">
       <div class="kpi-card cat">
-        <div class="kpi-label" style="color:var(--cat-color);" data-edu-text="Catalogue Array" data-clean-text="Total Books">Catalogue Array</div>
+        <div class="kpi-label" style="color:var(--cat-color);">Total Books</div>
         <div class="kpi-value"><span id="kpi-cat">0</span><span class="kpi-sub" id="kpi-cat-cap">/ 100</span></div>
         <div class="kpi-sub" id="kpi-avail">0 available · 0 borrowed</div>
         <div class="progress-track"><div id="bar-cat" class="progress-fill" style="width:0%;background:var(--cat-color);"></div></div>
       </div>
-      <div class="kpi-card stack">
-        <div class="kpi-label" style="color:var(--stack-color);" data-edu-text="Return Stack (LIFO)" data-clean-text="Recent Returns">Return Stack (LIFO)</div>
-        <div class="kpi-value"><span id="kpi-stack">0</span><span class="kpi-sub" id="kpi-stack-cap">/ 100</span></div>
-        <div class="kpi-sub" id="kpi-stack-top">Top: empty</div>
-        <div class="progress-track"><div id="bar-stack" class="progress-fill" style="width:0%;background:var(--stack-color);"></div></div>
+      <div class="kpi-card returns">
+        <div class="kpi-label" style="color:var(--returns-color);">Recent Returns</div>
+        <div class="kpi-value"><span id="kpi-returns">0</span><span class="kpi-sub" id="kpi-returns-cap">/ 100</span></div>
+        <div class="kpi-sub" id="kpi-returns-top">No recent returns</div>
+        <div class="progress-track"><div id="bar-returns" class="progress-fill" style="width:0%;background:var(--returns-color);"></div></div>
       </div>
-      <div class="kpi-card queue">
-        <div class="kpi-label" style="color:var(--queue-color);" data-edu-text="Circular Queue (FIFO)" data-clean-text="Waiting List">Circular Queue (FIFO)</div>
-        <div class="kpi-value"><span id="kpi-queue">0</span><span class="kpi-sub" id="kpi-queue-cap">/ 100</span></div>
-        <div class="kpi-sub" id="kpi-queue-ptr">front=0 · rear=0</div>
-        <div class="progress-track"><div id="bar-queue" class="progress-fill" style="width:0%;background:var(--queue-color);"></div></div>
+      <div class="kpi-card wait">
+        <div class="kpi-label" style="color:var(--wait-color);">Waiting List</div>
+        <div class="kpi-value"><span id="kpi-wait">0</span><span class="kpi-sub" id="kpi-wait-cap">/ 100</span></div>
+        <div class="kpi-sub" id="kpi-wait-next">No pending waits</div>
+        <div class="progress-track"><div id="bar-wait" class="progress-fill" style="width:0%;background:var(--wait-color);"></div></div>
       </div>
       <div class="kpi-card hist">
-        <div class="kpi-label" style="color:var(--hist-color);" data-edu-text="History Linked List" data-clean-text="Transactions">History Linked List</div>
-        <div class="kpi-value"><span id="kpi-hist">0</span><span class="kpi-sub" data-edu-text="nodes" data-clean-text="records">nodes</span></div>
-        <div class="kpi-sub" id="kpi-hist-tx">nextTxId = 1</div>
+        <div class="kpi-label" style="color:var(--hist-color);">Transactions</div>
+        <div class="kpi-value"><span id="kpi-hist">0</span><span class="kpi-sub">records</span></div>
+        <div class="kpi-sub">Recorded events</div>
         <div class="progress-track"><div id="bar-hist" class="progress-fill" style="width:100%;background:var(--hist-color);opacity:0.45;"></div></div>
       </div>
     </section>
@@ -804,9 +577,7 @@
       <div class="card theme-cat">
         <div class="card-header">
           <span class="card-title">Add New Book</span>
-          <span class="complexity-tag">Insert · O(n)</span>
         </div>
-        <p class="ds-explain">Positive unique ID required. Automatically trims whitespace and rejects duplicates.</p>
         <form id="form-add" class="inline-form">
           <input id="add-id" class="id-input" type="number" min="1" placeholder="ID (101)" required />
           <input id="add-title" class="grow" type="text" placeholder="Book Title" required />
@@ -815,40 +586,36 @@
         </form>
       </div>
 
-      <div class="card theme-queue">
+      <div class="card theme-wait">
         <div class="card-header">
-          <span class="card-title" data-edu-text="Quick Search &amp; Circulation" data-clean-text="Book Lookup &amp; Circulation">Quick Search &amp; Circulation</span>
-          <span class="complexity-tag">Atomic · O(n)</span>
+          <span class="card-title">Book Lookup &amp; Circulation</span>
         </div>
-        <p class="ds-explain">Enter any Book ID to check availability, borrow (or join waiting queue), or return to the stack.</p>
         <form id="form-circ" class="inline-form">
           <input id="circ-id" class="id-input" type="number" min="1" placeholder="Book ID" required />
           <button type="button" id="btn-search" class="secondary">Search ID</button>
-          <button type="button" id="btn-borrow" class="ok" data-edu-text="Borrow / Queue" data-clean-text="Borrow / Waitlist">Borrow / Queue</button>
+          <button type="button" id="btn-borrow" class="ok">Borrow / Waitlist</button>
           <button type="button" id="btn-return" class="warn">Return</button>
         </form>
       </div>
     </section>
 
-    <!-- Main Structures Workspace -->
-    <section class="structures-grid">
-      <!-- 1. Catalogue -->
+    <!-- Main Workspace -->
+    <section class="workspace-grid">
+      <!-- Book Inventory -->
       <div id="sec-catalogue" class="card theme-cat">
         <div class="card-header">
-          <span class="card-title" style="color:var(--cat-color);" data-edu-text="1. Book Catalogue (Bounded Array)" data-clean-text="Book Inventory">1. Book Catalogue (Bounded Array)</span>
+          <span class="card-title" style="color:var(--cat-color);">Book Inventory</span>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%;max-width:290px;justify-content:flex-end;">
             <input id="cat-filter" type="search" placeholder="Filter ID, title, author..." style="padding:6px 10px;font-size:0.84rem;min-height:34px;flex:1;" />
-            <span id="cat-meta" class="complexity-tag">0 / 100</span>
+            <span id="cat-meta" class="meta-tag">0 / 100</span>
           </div>
         </div>
-        <p class="ds-explain">Contiguous slots <code>[0..count-1]</code>. Deleting an item shifts trailing books left to prevent gaps.</p>
 
         <!-- Desktop/Tablet Table -->
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th class="col-slot">Slot</th>
                 <th>ID</th>
                 <th>Title</th>
                 <th>Author</th>
@@ -857,126 +624,69 @@
               </tr>
             </thead>
             <tbody id="cat-body">
-              <tr><td colspan="6" class="empty-msg">No books in inventory yet.</td></tr>
+              <tr><td colspan="5" class="empty-msg">No books in inventory yet.</td></tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Android/Mobile Cards -->
+        <!-- Mobile Cards -->
         <div id="cat-mobile-list" class="mobile-book-list">
           <span class="empty-msg">No books in inventory yet.</span>
         </div>
       </div>
 
-      <!-- 2 & 3. Stack & Circular Queue -->
+      <!-- Recent Returns & Waiting List -->
       <div style="display:flex; flex-direction:column; gap:16px;">
-        <div id="sec-stack" class="card theme-stack">
+        <div id="sec-returns" class="card theme-returns">
           <div class="card-header">
-            <span class="card-title" style="color:var(--stack-color);" data-edu-text="2. Recent Returns Stack (LIFO)" data-clean-text="Recent Returns">2. Recent Returns Stack (LIFO)</span>
-            <span id="stack-meta" class="complexity-tag">Push/Pop · O(1)</span>
+            <span class="card-title" style="color:var(--returns-color);">Recent Returns</span>
+            <span id="returns-meta" class="meta-tag">0 / 100</span>
           </div>
-          <p class="ds-explain">Last In, First Out: returned books stack on top; offset <code>0</code> is the most recent return.</p>
-          <div id="stack-view" class="stack-list">
+          <div id="returns-view" class="slot-list">
             <span class="empty-msg">No recent returns.</span>
           </div>
           <div class="btn-row">
-            <button id="btn-pop-stack" class="secondary sm" type="button" data-edu-text="Pop Top Return" data-clean-text="Clear Latest Return">Pop Top Return</button>
+            <button id="btn-clear-return" class="secondary sm" type="button">Clear Latest Return</button>
           </div>
         </div>
 
-        <div id="sec-queue" class="card theme-queue">
+        <div id="sec-waitlist" class="card theme-wait">
           <div class="card-header">
-            <span class="card-title" style="color:var(--queue-color);" data-edu-text="3. Waiting Request Queue (Circular FIFO)" data-clean-text="Waiting List">3. Waiting Request Queue (Circular FIFO)</span>
-            <span id="queue-meta" class="complexity-tag">front=0 · O(1)</span>
+            <span class="card-title" style="color:var(--wait-color);">Waiting List</span>
+            <span id="wait-meta" class="meta-tag">0 / 100</span>
           </div>
-          <p class="ds-explain">First In, First Out: wraps around modulo slots <code>(front + count) % capacity</code> without shifting.</p>
-          <div class="queue-visual-row">
-            <div class="queue-ring-box">
-              <svg id="queue-ring-svg" viewBox="0 0 150 150" width="142" height="142" aria-label="Circular Queue Ring"></svg>
-            </div>
-            <div id="queue-view" class="queue-chain">
-              <span class="empty-msg">No pending requests.</span>
-            </div>
+          <div id="wait-view" class="wait-list">
+            <span class="empty-msg">No pending requests.</span>
           </div>
           <div class="btn-row">
-            <button id="btn-process-queue" class="ok sm" type="button" data-edu-text="Process FIFO Head" data-clean-text="Lend to Next Waiter">Process FIFO Head</button>
-            <button id="btn-cancel-queue" class="danger sm" type="button" data-edu-text="Cancel Head Request" data-clean-text="Remove Next Waiter">Cancel Head Request</button>
+            <button id="btn-process-wait" class="ok sm" type="button">Lend to Next Waiter</button>
+            <button id="btn-cancel-wait" class="danger sm" type="button">Remove Next Waiter</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 4. Singly Linked History -->
+    <!-- Circulation History -->
     <section id="sec-history" class="card theme-hist" style="margin-bottom:18px;">
       <div class="card-header">
-        <span class="card-title" style="color:var(--hist-color);" data-edu-text="4. Borrow / Return History (Singly Linked List)" data-clean-text="Circulation History">4. Borrow / Return History (Singly Linked List)</span>
-        <span id="hist-meta" class="complexity-tag">Tail Append · O(1) | Traverse · O(h)</span>
+        <span class="card-title" style="color:var(--hist-color);">Circulation History</span>
+        <span id="hist-meta" class="meta-tag">0 records</span>
       </div>
-      <p class="ds-explain">Dynamic node chain from <code>HEAD</code> to <code>TAIL</code>. Records preserve historical snapshots even if a book is later deleted.</p>
-      <div id="hist-view" class="node-chain">
-        <span class="ptr-badge">HEAD</span>
-        <span class="arrow">──▶</span>
-        <span class="ptr-badge">NULL</span>
+      <div id="hist-view" class="history-grid">
+        <span class="empty-msg">No transactions recorded yet.</span>
       </div>
     </section>
 
-    <!-- Bottom Maintenance & Live Audit Log -->
-    <section id="sec-maint" class="bottom-grid">
-      <details id="maint-panel" class="panel">
-        <summary>
-          <span style="color:var(--warn);">Educational Maintenance Console (Submenu 14 Parity)</span>
-          <span class="complexity-tag">Tap to Expand</span>
-        </summary>
-        <div class="maint-grid">
-          <div class="maint-row">
-            <div class="maint-label">History Search / Edit / Delete (by Transaction ID)</div>
-            <form id="form-hist-maint" class="inline-form">
-              <input id="mh-txid" class="id-input" type="number" min="1" placeholder="TxID" required />
-              <button type="button" id="btn-hist-search" class="secondary sm">Search TxID</button>
-              <input id="mh-title" class="grow" type="text" placeholder="Corrected Title" />
-              <select id="mh-action">
-                <option value="BORROW">BORROW</option>
-                <option value="RETURN">RETURN</option>
-              </select>
-              <button type="submit" class="warn sm">Update</button>
-              <button type="button" id="btn-hist-del" class="danger sm">Delete</button>
-            </form>
-          </div>
-
-          <div class="maint-row">
-            <div class="maint-label">Return Stack Search &amp; Slot Update (Top-Relative Offset)</div>
-            <form id="form-stack-maint" class="inline-form">
-              <input id="ms-search-id" class="id-input" type="number" min="1" placeholder="Find ID" />
-              <button type="button" id="btn-stack-search" class="secondary sm">Find Offset</button>
-              <input id="ms-off" class="id-input" type="number" min="0" placeholder="Offset" />
-              <input id="ms-id" class="id-input" type="number" min="1" placeholder="New ID" />
-              <button type="submit" class="secondary sm">Update Slot</button>
-            </form>
-          </div>
-
-          <div class="maint-row">
-            <div class="maint-label">Request Queue Search &amp; Slot Update (Front-Relative Offset)</div>
-            <form id="form-queue-maint" class="inline-form">
-              <input id="mq-search-id" class="id-input" type="number" min="1" placeholder="Find ID" />
-              <button type="button" id="btn-queue-search" class="secondary sm">Find Offset</button>
-              <input id="mq-off" class="id-input" type="number" min="0" placeholder="Offset" />
-              <input id="mq-id" class="id-input" type="number" min="1" placeholder="New ID" />
-              <button type="submit" class="secondary sm">Update Slot</button>
-            </form>
-          </div>
-        </div>
-      </details>
-
-      <details class="panel" open>
-        <summary>
-          <span>Live Engine Activity Feed</span>
-          <button id="btn-clear-log" class="secondary sm" type="button">Clear</button>
-        </summary>
-        <div id="log-feed" class="log-feed">
-          <div class="log-entry ok">[INIT] Ready.</div>
-        </div>
-      </details>
-    </section>
+    <!-- Live Activity Feed -->
+    <details class="panel" open>
+      <summary>
+        <span>Activity Feed</span>
+        <button id="btn-clear-log" class="secondary sm" type="button">Clear</button>
+      </summary>
+      <div id="log-feed" class="log-feed">
+        <div class="log-entry ok">[INIT] Ready.</div>
+      </div>
+    </details>
   </div>
 
   <!-- Inline Edit Book Modal -->
@@ -1009,49 +719,24 @@
     const logFeed = document.getElementById('log-feed');
 
     let latestState = null;
-    let highlightState = { stackOffset: null, queueOffset: null, txId: null };
     let editingBookId = null;
     let isStaticMode = false;
     let requestBusy = false;
-    const cleanToggle = document.getElementById('toggle-clean-ui');
 
-    function isCleanMode() {
-      return document.body.classList.contains('clean-mode');
-    }
-
-    function applyCleanMode(enabled, persist = true) {
-      document.body.classList.toggle('clean-mode', enabled);
-      cleanToggle.checked = enabled;
-      cleanToggle.setAttribute('aria-checked', enabled ? 'true' : 'false');
-      document.querySelectorAll('[data-edu-text][data-clean-text]').forEach((el) => {
-        el.textContent = enabled ? el.dataset.cleanText : el.dataset.eduText;
-      });
-      if (persist) {
-        try { localStorage.setItem('smartlibrary_clean_ui', enabled ? '1' : '0'); } catch (_) {}
-      }
-      if (latestState) {
-        renderState(latestState);
-      }
-    }
-
-    cleanToggle.addEventListener('change', (e) => {
-      applyCleanMode(e.target.checked, true);
-    });
-
-    // Client-side fallback mirror used ONLY when hosted statically (e.g. Netlify) without local C++ server
+    // Client-side fallback mirror used ONLY when hosted statically without local C++ server
     const staticEngine = (() => {
       const CAP = 100;
       const catalogue = [];
       let histHead = null, histTail = null, histCount = 0, nextTxId = 1;
-      const stack = [];
-      const queueArr = new Array(CAP).fill(0);
-      let qFront = 0, qCount = 0;
+      const recentReturns = [];
+      const waitArr = new Array(CAP).fill(0);
+      let wFront = 0, wCount = 0;
 
       const trim = (s) => String(s ?? '').trim();
       const findCatIdx = (id) => catalogue.findIndex(b => b.id === id);
-      const queueContains = (id) => {
-        for (let i = 0; i < qCount; i++) {
-          if (queueArr[(qFront + i) % CAP] === id) return true;
+      const waitContains = (id) => {
+        for (let i = 0; i < wCount; i++) {
+          if (waitArr[(wFront + i) % CAP] === id) return true;
         }
         return false;
       };
@@ -1068,14 +753,14 @@
         getState() {
           const histItems = [];
           for (let cur = histHead; cur; cur = cur.next) histItems.push({ ...cur.data });
-          const stackTopToBottom = [...stack].reverse();
-          const qItems = [];
-          for (let i = 0; i < qCount; i++) qItems.push(queueArr[(qFront + i) % CAP]);
+          const returnsLatestFirst = [...recentReturns].reverse();
+          const waitItems = [];
+          for (let i = 0; i < wCount; i++) waitItems.push(waitArr[(wFront + i) % CAP]);
           return {
             catalogue: { count: catalogue.length, capacity: CAP, items: catalogue.map(b => ({ ...b })) },
             history: { count: histCount, nextTxId, items: histItems },
-            returnStack: { count: stack.length, capacity: CAP, items: stackTopToBottom },
-            requestQueue: { count: qCount, capacity: CAP, frontIndex: qFront, items: qItems }
+            returnStack: { count: recentReturns.length, capacity: CAP, items: returnsLatestFirst },
+            requestQueue: { count: wCount, capacity: CAP, frontIndex: wFront, items: waitItems }
           };
         },
         handle(method, url, body = {}) {
@@ -1093,7 +778,7 @@
           if (path === '/api/books/add') {
             const id = Number(body.id), title = trim(body.title), author = trim(body.author);
             if (!Number.isInteger(id) || id <= 0 || !title || !author) return resp(false, 'Invalid', 'Invalid book details (ID must be > 0 and title/author non-empty).');
-            if (catalogue.length >= CAP) return resp(false, 'Full', 'Catalogue is full. Cannot add more books.');
+            if (catalogue.length >= CAP) return resp(false, 'Full', 'Inventory is full. Cannot add more books.');
             if (findCatIdx(id) !== -1) return resp(false, 'Duplicate', 'Duplicate Book ID. Book not added.');
             catalogue.push({ id, title, author, available: true });
             return resp(true, 'Ok', 'Book added successfully.');
@@ -1103,7 +788,7 @@
             if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid book ID.');
             const idx = findCatIdx(id);
             if (idx === -1) return resp(false, 'NotFound', 'Book not found.');
-            if (!catalogue[idx].available || queueContains(id)) return resp(false, 'Blocked', 'Cannot delete: book is currently borrowed or has pending requests.');
+            if (!catalogue[idx].available || waitContains(id)) return resp(false, 'Blocked', 'Cannot delete: book is currently borrowed or has pending requests.');
             for (let i = idx; i + 1 < catalogue.length; i++) catalogue[i] = catalogue[i + 1];
             catalogue.pop();
             return resp(true, 'Ok', 'Book deleted successfully.');
@@ -1127,10 +812,10 @@
               appendHistory(id, catalogue[idx].title, 'BORROW');
               return resp(true, 'Borrowed', 'Book borrowed successfully.');
             }
-            if (qCount >= CAP) return resp(false, 'Full', 'Queue Overflow! Waiting request queue is full.');
-            queueArr[(qFront + qCount) % CAP] = id;
-            qCount++;
-            return resp(true, 'Queued', 'Book is already borrowed. Request added to queue.');
+            if (wCount >= CAP) return resp(false, 'Full', 'Waiting list is full.');
+            waitArr[(wFront + wCount) % CAP] = id;
+            wCount++;
+            return resp(true, 'Queued', 'Book is already borrowed. Added to waiting list.');
           }
           if (path === '/api/circulation/return') {
             const id = Number(body.id);
@@ -1138,118 +823,36 @@
             const idx = findCatIdx(id);
             if (idx === -1) return resp(false, 'NotFound', 'Book not found.');
             if (catalogue[idx].available) return resp(false, 'Blocked', 'Book is already available; cannot return.');
-            if (stack.length >= CAP) return resp(false, 'Full', 'Stack Overflow! Return stack is full; pop a recent return first.');
+            if (recentReturns.length >= CAP) return resp(false, 'Full', 'Recent returns list is full; clear the latest return first.');
             catalogue[idx].available = true;
-            stack.push(id);
+            recentReturns.push(id);
             appendHistory(id, catalogue[idx].title, 'RETURN');
             return resp(true, 'Ok', 'Book returned successfully.');
           }
           if (path === '/api/circulation/process') {
-            if (qCount === 0) return resp(false, 'Empty', 'Queue Underflow! No pending requests.');
-            const headId = queueArr[qFront];
+            if (wCount === 0) return resp(false, 'Empty', 'No pending waiting requests.');
+            const headId = waitArr[wFront];
             const idx = findCatIdx(headId);
-            if (idx === -1 || !catalogue[idx].available) return resp(false, 'Blocked', `Head request (Book ID ${headId}) is currently unavailable. Queue left unchanged.`);
-            queueArr[qFront] = 0;
-            qFront = (qFront + 1) % CAP;
-            qCount--;
+            if (idx === -1 || !catalogue[idx].available) return resp(false, 'Blocked', `Next request (Book ID ${headId}) is currently unavailable.`);
+            waitArr[wFront] = 0;
+            wFront = (wFront + 1) % CAP;
+            wCount--;
             catalogue[idx].available = false;
             appendHistory(headId, catalogue[idx].title, 'BORROW');
-            return resp(true, 'Ok', `Processed waiting request for Book ID ${headId}. Book borrowed successfully.`);
+            return resp(true, 'Ok', `Lent Book ID ${headId} to next waiter.`);
           }
           if (path === '/api/circulation/cancel') {
-            if (qCount === 0) return resp(false, 'Empty', 'Queue Underflow! No pending requests to cancel.');
-            const headId = queueArr[qFront];
-            queueArr[qFront] = 0;
-            qFront = (qFront + 1) % CAP;
-            qCount--;
-            return resp(true, 'Ok', `Cancelled head waiting request for Book ID ${headId}.`);
+            if (wCount === 0) return resp(false, 'Empty', 'No pending waiting requests to remove.');
+            const headId = waitArr[wFront];
+            waitArr[wFront] = 0;
+            wFront = (wFront + 1) % CAP;
+            wCount--;
+            return resp(true, 'Ok', `Removed waiting request for Book ID ${headId}.`);
           }
           if (path === '/api/circulation/pop-stack') {
-            if (stack.length === 0) return resp(false, 'Empty', 'Stack Underflow!');
-            const id = stack.pop();
-            return resp(true, 'Ok', `Popped Book ID ${id} from return stack.`);
-          }
-          if (method === 'GET' && path === '/api/maintenance/history/search') {
-            const txId = Number(new URLSearchParams(query).get('txId'));
-            if (!Number.isInteger(txId) || txId <= 0) return resp(false, 'Invalid', 'Invalid Transaction ID.');
-            if (!histHead) return resp(false, 'Empty', 'History is empty.');
-            for (let cur = histHead; cur; cur = cur.next) {
-              if (cur.data.transactionId === txId) {
-                return resp(true, 'Ok', `Found Tx#${txId} (Book ${cur.data.bookId}: ${cur.data.title} [${cur.data.action}])`, { record: { ...cur.data } });
-              }
-            }
-            return resp(false, 'NotFound', 'History record not found.');
-          }
-          if (path === '/api/maintenance/history/edit') {
-            const txId = Number(body.txId), title = trim(body.title), action = trim(body.action);
-            if (!Number.isInteger(txId) || txId <= 0 || !title || (action !== 'BORROW' && action !== 'RETURN')) {
-              return resp(false, 'Invalid', 'Invalid history correction.');
-            }
-            if (!histHead) return resp(false, 'Empty', 'History is empty.');
-            for (let cur = histHead; cur; cur = cur.next) {
-              if (cur.data.transactionId === txId) {
-                cur.data.title = title; cur.data.action = action;
-                return resp(true, 'Ok', 'History entry updated.');
-              }
-            }
-            return resp(false, 'NotFound', 'History record not found.');
-          }
-          if (path === '/api/maintenance/history/delete') {
-            const txId = Number(body.txId);
-            if (!Number.isInteger(txId) || txId <= 0) return resp(false, 'Invalid', 'Invalid Transaction ID.');
-            if (!histHead) return resp(false, 'Empty', 'History is empty.');
-            if (histHead.data.transactionId === txId) {
-              histHead = histHead.next;
-              if (!histHead) histTail = null;
-              histCount--;
-              return resp(true, 'Ok', 'History entry deleted.');
-            }
-            let prev = histHead;
-            while (prev.next) {
-              if (prev.next.data.transactionId === txId) {
-                const target = prev.next;
-                prev.next = target.next;
-                if (target === histTail) histTail = prev;
-                histCount--;
-                return resp(true, 'Ok', 'History entry deleted.');
-              }
-              prev = prev.next;
-            }
-            return resp(false, 'NotFound', 'History record not found.');
-          }
-          if (method === 'GET' && path === '/api/maintenance/stack/search') {
-            const id = Number(new URLSearchParams(query).get('id'));
-            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid Book ID.');
-            if (stack.length === 0) return resp(false, 'Empty', 'Return stack is empty.');
-            for (let off = 0; off < stack.length; off++) {
-              if (stack[stack.length - 1 - off] === id) return resp(true, 'Ok', `Found Book ID ${id} at top-relative offset ${off}.`, { offset: off });
-            }
-            return resp(false, 'NotFound', 'Book ID not found in return stack.');
-          }
-          if (path === '/api/maintenance/stack/update') {
-            const off = Number(body.offset), bookId = Number(body.bookId);
-            if (stack.length === 0) return resp(false, 'Empty', 'Return stack is empty.');
-            if (!Number.isInteger(off) || off < 0 || off >= stack.length || !Number.isInteger(bookId) || bookId <= 0) return resp(false, 'Invalid', 'Invalid offset or Book ID.');
-            if (findCatIdx(bookId) === -1) return resp(false, 'NotFound', 'Target Book ID does not exist in catalogue.');
-            stack[stack.length - 1 - off] = bookId;
-            return resp(true, 'Ok', 'Return stack slot updated.');
-          }
-          if (method === 'GET' && path === '/api/maintenance/queue/search') {
-            const id = Number(new URLSearchParams(query).get('id'));
-            if (!Number.isInteger(id) || id <= 0) return resp(false, 'Invalid', 'Invalid Book ID.');
-            if (qCount === 0) return resp(false, 'Empty', 'Waiting request queue is empty.');
-            for (let off = 0; off < qCount; off++) {
-              if (queueArr[(qFront + off) % CAP] === id) return resp(true, 'Ok', `Found Book ID ${id} at front-relative offset ${off}.`, { offset: off });
-            }
-            return resp(false, 'NotFound', 'Book ID not found in waiting queue.');
-          }
-          if (path === '/api/maintenance/queue/update') {
-            const off = Number(body.offset), bookId = Number(body.bookId);
-            if (qCount === 0) return resp(false, 'Empty', 'Waiting request queue is empty.');
-            if (!Number.isInteger(off) || off < 0 || off >= qCount || !Number.isInteger(bookId) || bookId <= 0) return resp(false, 'Invalid', 'Invalid offset or Book ID.');
-            if (findCatIdx(bookId) === -1) return resp(false, 'NotFound', 'Target Book ID does not exist in catalogue.');
-            queueArr[(qFront + off) % CAP] = bookId;
-            return resp(true, 'Ok', 'Request queue slot updated.');
+            if (recentReturns.length === 0) return resp(false, 'Empty', 'No recent returns to clear.');
+            const id = recentReturns.pop();
+            return resp(true, 'Ok', `Cleared Book ID ${id} from recent returns.`);
           }
           return resp(false, 'NotFound', 'Endpoint not found.');
         }
@@ -1285,14 +888,15 @@
     function enableStaticMode() {
       if (isStaticMode) return;
       isStaticMode = true;
-      document.getElementById('engine-label').textContent = 'Static Web Demo (Client Mirror)';
+      document.getElementById('engine-label').textContent = 'Web Demo';
       document.getElementById('engine-dot').style.background = '#fbbf24';
       document.getElementById('engine-dot').style.boxShadow = '0 0 8px #fbbf24';
-      setStatus(true, 'Interactive browser demo active (static hosting). Run smartlibrary_gui.exe locally for native C++17 server mode.', 'WEB DEMO');
+      setStatus(true, 'Dashboard ready. Add or search books below.', 'READY');
     }
 
     async function apiCall(method, url, body = null) {
-      if (isStaticMode) {
+      if (isStaticMode || window.location.protocol === 'file:') {
+        enableStaticMode();
         return staticEngine.handle(method, url, body || {});
       }
       const opts = { method, headers: {} };
@@ -1310,56 +914,20 @@
       return { httpOk: res.ok, data };
     }
 
-    async function postAction(url, body, clearHighlights = true) {
+    async function postAction(url, body) {
       if (requestBusy) return null;
       requestBusy = true;
       try {
-        if (clearHighlights) {
-          highlightState = { stackOffset: null, queueOffset: null, txId: null };
-        }
         const { data } = await apiCall('POST', url, body);
         setStatus(data.ok, data.message, data.status);
         await refreshState();
         return data;
       } catch (err) {
-        setStatus(false, 'Network error communicating with C++ server: ' + err.message, 'Error');
+        setStatus(false, 'Network error communicating with server: ' + err.message, 'Error');
         return null;
       } finally {
         requestBusy = false;
       }
-    }
-
-    function renderCircularRing(q) {
-      const svg = document.getElementById('queue-ring-svg');
-      const slotsToDraw = Math.min(q.capacity, 8);
-      const cx = 75, cy = 75, r = 50;
-      let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(251,191,36,0.28)" stroke-width="2" stroke-dasharray="4 3"/>`;
-      const rearIdx = (q.frontIndex + q.count) % q.capacity;
-      const frontSlotVisual = q.frontIndex % slotsToDraw;
-      const rearSlotVisual = rearIdx % slotsToDraw;
-
-      for (let i = 0; i < slotsToDraw; i++) {
-        const angle = (i / slotsToDraw) * Math.PI * 2 - Math.PI / 2;
-        const x = cx + Math.cos(angle) * r;
-        const y = cy + Math.sin(angle) * r;
-        const relOffset = (i - frontSlotVisual + slotsToDraw) % slotsToDraw;
-        const occupied = relOffset < q.items.length;
-        const isFront = q.count > 0 && i === frontSlotVisual;
-        const isRear = i === rearSlotVisual && !occupied;
-
-        const fill = isFront ? '#22c55e' : (occupied ? '#fbbf24' : '#162137');
-        const stroke = isFront ? '#bbf7d0' : (isRear ? '#38bdf8' : (occupied ? '#fef3c7' : '#475569'));
-        const label = occupied ? q.items[relOffset] : (isRear ? 'R' : '');
-
-        html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13" fill="${fill}" stroke="${stroke}" stroke-width="1.8"/>`;
-        if (label) {
-          const textFill = occupied ? '#060a14' : '#38bdf8';
-          html += `<text x="${x.toFixed(1)}" y="${(y + 3.5).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="800" fill="${textFill}">${label}</text>`;
-        }
-      }
-      html += `<text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#f8fafc">F:${q.frontIndex} · R:${rearIdx}</text>`;
-      html += `<text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="8.5" fill="#94a3b8">${q.count}/${q.capacity} used</text>`;
-      svg.innerHTML = html;
     }
 
     function renderCatalogueTable(cat) {
@@ -1368,32 +936,30 @@
       const mobileList = document.getElementById('cat-mobile-list');
 
       const filtered = cat.items
-        .map((b, idx) => ({ b, idx }))
-        .filter(({ b }) => !filter ||
+        .filter((b) => !filter ||
           String(b.id).includes(filter) ||
           b.title.toLowerCase().includes(filter) ||
           b.author.toLowerCase().includes(filter));
 
       if (cat.items.length === 0) {
-        catBody.innerHTML = '<tr><td colspan="6" class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</td></tr>';
-        mobileList.innerHTML = '<span class="empty-msg">Catalogue is empty. Tap "Load Viva Demo" above to start.</span>';
+        catBody.innerHTML = '<tr><td colspan="5" class="empty-msg">No books in inventory yet.</td></tr>';
+        mobileList.innerHTML = '<span class="empty-msg">No books in inventory yet.</span>';
         return;
       }
       if (filtered.length === 0) {
-        catBody.innerHTML = '<tr><td colspan="6" class="empty-msg">No books match your filter.</td></tr>';
+        catBody.innerHTML = '<tr><td colspan="5" class="empty-msg">No books match your filter.</td></tr>';
         mobileList.innerHTML = '<span class="empty-msg">No books match your filter.</span>';
         return;
       }
 
-      catBody.innerHTML = filtered.map(({ b, idx }) => `
+      catBody.innerHTML = filtered.map((b) => `
         <tr>
-          <td class="col-slot"><span class="idx-chip">[${idx}]</span></td>
           <td><strong>${b.id}</strong></td>
           <td>${escapeHtml(b.title)}</td>
           <td>${escapeHtml(b.author)}</td>
           <td><span class="pill ${b.available ? 'avail' : 'borrowed'}">${b.available ? 'Available' : 'Borrowed'}</span></td>
           <td style="display:flex;gap:5px;flex-wrap:wrap;">
-            <button class="sm ${b.available ? 'ok' : 'warn'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow' : 'Queue'}</button>
+            <button class="sm ${b.available ? 'ok' : 'warn'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow' : 'Waitlist'}</button>
             ${!b.available ? `<button class="sm secondary" onclick="quickReturn(${b.id})">Return</button>` : ''}
             <button class="sm secondary" onclick="openEditModal(${b.id})">Edit</button>
             <button class="sm danger" onclick="quickDelete(${b.id})">Del</button>
@@ -1401,16 +967,16 @@
         </tr>
       `).join('');
 
-      mobileList.innerHTML = filtered.map(({ b, idx }) => `
+      mobileList.innerHTML = filtered.map((b) => `
         <div class="mobile-book-card">
           <div class="mobile-book-top">
-            <div><span class="idx-chip col-slot">[${idx}]</span> <strong>ID ${b.id}</strong></div>
+            <div><strong>ID ${b.id}</strong></div>
             <span class="pill ${b.available ? 'avail' : 'borrowed'}">${b.available ? 'Available' : 'Borrowed'}</span>
           </div>
           <div class="mobile-book-title">${escapeHtml(b.title)}</div>
           <div class="mobile-book-author">by ${escapeHtml(b.author)}</div>
           <div class="mobile-book-actions">
-            <button class="sm ${b.available ? 'ok' : 'warn'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow Book' : 'Join Queue'}</button>
+            <button class="sm ${b.available ? 'ok' : 'warn'}" onclick="quickBorrow(${b.id})">${b.available ? 'Borrow Book' : 'Join Waitlist'}</button>
             ${!b.available
               ? `<button class="sm secondary" onclick="quickReturn(${b.id})">Return Book</button>`
               : `<button class="sm secondary" onclick="openEditModal(${b.id})">Edit Info</button>`}
@@ -1423,104 +989,89 @@
 
     function renderState(state) {
       latestState = state;
-      const clean = isCleanMode();
 
-      // KPI Updates
+      // Book Inventory
       const cat = state.catalogue;
       const availCount = cat.items.filter(b => b.available).length;
       document.getElementById('kpi-cat').textContent = cat.count;
       document.getElementById('kpi-cat-cap').textContent = `/ ${cat.capacity}`;
       document.getElementById('kpi-avail').textContent = `${availCount} available · ${cat.count - availCount} borrowed`;
       document.getElementById('bar-cat').style.width = `${Math.min(100, (cat.count / cat.capacity) * 100)}%`;
-      document.getElementById('cat-meta').textContent = `${cat.count} / ${cat.capacity} slots`;
+      document.getElementById('cat-meta').textContent = `${cat.count} / ${cat.capacity}`;
       renderCatalogueTable(cat);
 
-      // Return Stack
+      // Recent Returns
       const st = state.returnStack;
-      document.getElementById('kpi-stack').textContent = st.count;
-      document.getElementById('kpi-stack-cap').textContent = `/ ${st.capacity}`;
-      document.getElementById('kpi-stack-top').textContent = st.items.length
-        ? (clean ? `Latest: Book #${st.items[0]}` : `Top Book ID: ${st.items[0]}`)
-        : (clean ? 'No recent returns' : 'Top: empty');
-      document.getElementById('bar-stack').style.width = `${Math.min(100, (st.count / st.capacity) * 100)}%`;
-      document.getElementById('stack-meta').textContent = `${st.count} / ${st.capacity} · LIFO O(1)`;
+      document.getElementById('kpi-returns').textContent = st.count;
+      document.getElementById('kpi-returns-cap').textContent = `/ ${st.capacity}`;
+      document.getElementById('kpi-returns-top').textContent = st.items.length
+        ? `Latest: Book #${st.items[0]}`
+        : 'No recent returns';
+      document.getElementById('bar-returns').style.width = `${Math.min(100, (st.count / st.capacity) * 100)}%`;
+      document.getElementById('returns-meta').textContent = `${st.count} / ${st.capacity}`;
 
-      const stackView = document.getElementById('stack-view');
+      const returnsView = document.getElementById('returns-view');
       if (st.items.length === 0) {
-        stackView.innerHTML = `<span class="empty-msg">${clean ? 'No recent returns.' : 'Return stack is empty.'}</span>`;
+        returnsView.innerHTML = '<span class="empty-msg">No recent returns.</span>';
       } else {
-        stackView.innerHTML = st.items.map((id, offset) => {
-          const hl = highlightState.stackOffset === offset ? 'highlight' : '';
-          const rightLabel = clean
-            ? (offset === 0 ? 'Latest' : `#${offset + 1}`)
-            : (offset === 0 ? 'TOP · offset 0' : 'offset ' + offset);
+        returnsView.innerHTML = st.items.map((id, offset) => `
+          <div class="slot-box ${offset === 0 ? 'top' : ''}">
+            <span>Book #<strong>${id}</strong></span>
+            <span>${offset === 0 ? 'Latest' : '#' + (offset + 1)}</span>
+          </div>
+        `).join('');
+      }
+
+      // Waiting List
+      const q = state.requestQueue;
+      document.getElementById('kpi-wait').textContent = q.count;
+      document.getElementById('kpi-wait-cap').textContent = `/ ${q.capacity}`;
+      document.getElementById('kpi-wait-next').textContent = q.items.length
+        ? `Next in line: Book #${q.items[0]}`
+        : 'No pending waits';
+      document.getElementById('bar-wait').style.width = `${Math.min(100, (q.count / q.capacity) * 100)}%`;
+      document.getElementById('wait-meta').textContent = `${q.count} / ${q.capacity}`;
+
+      const waitView = document.getElementById('wait-view');
+      if (q.items.length === 0) {
+        waitView.innerHTML = '<span class="empty-msg">No pending requests.</span>';
+      } else {
+        waitView.innerHTML = q.items.map((id, offset) => `
+          <div class="slot-box" style="gap:8px;padding:6px 10px;">
+            <span>Book <strong>#${id}</strong></span>
+            <span class="idx-chip">#${offset + 1}</span>
+          </div>
+        `).join('');
+      }
+
+      // Circulation History
+      const h = state.history;
+      document.getElementById('kpi-hist').textContent = h.count;
+      document.getElementById('hist-meta').textContent = `${h.count} records`;
+      const histView = document.getElementById('hist-view');
+      if (h.items.length === 0) {
+        histView.innerHTML = '<span class="empty-msg">No transactions recorded yet.</span>';
+      } else {
+        histView.innerHTML = h.items.map((entry) => {
+          const actCls = entry.action === 'BORROW' ? 'act-borrow' : 'act-return';
           return `
-            <div class="slot-box ${offset === 0 ? 'top' : ''} ${hl}">
-              <span>Book #<strong>${id}</strong></span>
-              <span>${rightLabel}</span>
+            <div class="history-card">
+              <div class="tx-row">
+                <span class="tx-id">#${entry.transactionId}</span>
+                <span class="act-tag ${actCls}">${escapeHtml(entry.action)}</span>
+              </div>
+              <div>Book <strong>${entry.bookId}</strong> · ${escapeHtml(entry.title)}</div>
             </div>
           `;
         }).join('');
-      }
-
-      // Circular Request Queue
-      const q = state.requestQueue;
-      const rearIdx = (q.frontIndex + q.count) % q.capacity;
-      document.getElementById('kpi-queue').textContent = q.count;
-      document.getElementById('kpi-queue-cap').textContent = `/ ${q.capacity}`;
-      document.getElementById('kpi-queue-ptr').textContent = clean
-        ? (q.items.length ? `Next in line: Book #${q.items[0]}` : 'No pending waits')
-        : `front=${q.frontIndex} · rear=${rearIdx}`;
-      document.getElementById('bar-queue').style.width = `${Math.min(100, (q.count / q.capacity) * 100)}%`;
-      document.getElementById('queue-meta').textContent = `front=${q.frontIndex} · rear=${rearIdx} · O(1)`;
-      renderCircularRing(q);
-
-      const queueView = document.getElementById('queue-view');
-      if (q.items.length === 0) {
-        queueView.innerHTML = `<span class="empty-msg">${clean ? 'No pending requests.' : 'Waiting request queue is empty.'}</span>`;
-      } else {
-        queueView.innerHTML = '<span class="arrow">FRONT →</span>' + q.items.map((id, offset) => {
-          const physIdx = (q.frontIndex + offset) % q.capacity;
-          const hl = highlightState.queueOffset === offset ? 'highlight' : '';
-          const metaChip = clean
-            ? `<span class="idx-chip">#${offset + 1}</span>`
-            : `<span class="idx-chip">off:${offset} [slot ${physIdx}]</span>`;
-          return `<div class="slot-box q-item ${hl}" style="gap:8px;padding:6px 10px;"><span>Book <strong>#${id}</strong></span>${metaChip}</div>`;
-        }).join('<span class="arrow">→</span>') + '<span class="arrow">→ REAR</span>';
-      }
-
-      // Singly Linked History List
-      const h = state.history;
-      document.getElementById('kpi-hist').textContent = h.count;
-      document.getElementById('kpi-hist-tx').textContent = clean ? 'Recorded events' : `nextTxId = ${h.nextTxId}`;
-      document.getElementById('hist-meta').textContent = `${h.count} nodes · nextTxId=${h.nextTxId}`;
-      const histView = document.getElementById('hist-view');
-      if (h.items.length === 0) {
-        histView.innerHTML = clean
-          ? '<span class="empty-msg">No transactions recorded yet.</span>'
-          : '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
-      } else {
-        histView.innerHTML = '<span class="ptr-badge">HEAD</span><span class="arrow">──▶</span>' + h.items.map((node, idx) => {
-          const hl = highlightState.txId === node.transactionId ? 'highlight' : '';
-          const actCls = node.action === 'BORROW' ? 'act-borrow' : 'act-return';
-          return `
-            <div class="ll-node ${hl}">
-              <div class="tx-row">
-                <span class="tx-id">${clean ? '#' + node.transactionId : 'Tx#' + node.transactionId}</span>
-                <span class="act-tag ${actCls}">${escapeHtml(node.action)}</span>
-              </div>
-              <div>Book <strong>${node.bookId}</strong> · ${escapeHtml(node.title)}</div>
-              ${idx === h.items.length - 1 ? '<div class="tail-note" style="font-size:0.7rem;color:var(--hist-color);margin-top:2px;">(TAIL NODE)</div>' : ''}
-            </div>
-          `;
-        }).join('<span class="arrow">──▶</span>') + '<span class="arrow">──▶</span><span class="ptr-badge">NULL</span>';
       }
     }
 
     async function refreshState() {
       try {
         let state;
-        if (isStaticMode) {
+        if (isStaticMode || window.location.protocol === 'file:') {
+          enableStaticMode();
           state = staticEngine.getState();
         } else {
           const res = await fetch('/api/state');
@@ -1617,102 +1168,11 @@
       postAction('/api/circulation/return', { id: Number(document.getElementById('circ-id').value) });
     });
 
-    document.getElementById('btn-pop-stack').addEventListener('click', () => postAction('/api/circulation/pop-stack', {}));
-    document.getElementById('btn-process-queue').addEventListener('click', () => postAction('/api/circulation/process', {}));
-    document.getElementById('btn-cancel-queue').addEventListener('click', () => postAction('/api/circulation/cancel', {}));
+    document.getElementById('btn-clear-return').addEventListener('click', () => postAction('/api/circulation/pop-stack', {}));
+    document.getElementById('btn-process-wait').addEventListener('click', () => postAction('/api/circulation/process', {}));
+    document.getElementById('btn-cancel-wait').addEventListener('click', () => postAction('/api/circulation/cancel', {}));
     document.getElementById('btn-refresh').addEventListener('click', refreshState);
     document.getElementById('btn-clear-log').addEventListener('click', () => { logFeed.innerHTML = ''; });
-
-    document.getElementById('btn-seed').addEventListener('click', () => {
-      postAction('/api/books/add', { id: 101, title: 'Data Structures', author: 'Seymour Lipschutz' });
-    });
-
-    document.getElementById('btn-seed-demo').addEventListener('click', async () => {
-      if (requestBusy) return;
-      requestBusy = true;
-      try {
-        await apiCall('POST', '/api/books/add', { id: 101, title: 'Data Structures', author: 'Seymour Lipschutz' });
-        await apiCall('POST', '/api/books/add', { id: 102, title: 'Introduction to Algorithms', author: 'Cormen et al.' });
-        await apiCall('POST', '/api/books/add', { id: 103, title: 'Operating System Concepts', author: 'Silberschatz' });
-        await apiCall('POST', '/api/circulation/borrow', { id: 101 });
-        await apiCall('POST', '/api/circulation/borrow', { id: 101 });
-        await apiCall('POST', '/api/circulation/borrow', { id: 102 });
-        await apiCall('POST', '/api/circulation/borrow', { id: 102 });
-        await apiCall('POST', '/api/circulation/return', { id: 102 });
-        setStatus(true, 'Loaded Viva Demo Dataset (3 books, queue wraparound, return stack & history populated).', 'Demo');
-        await refreshState();
-      } finally {
-        requestBusy = false;
-      }
-    });
-
-    // Maintenance Handlers
-    document.getElementById('btn-hist-search').addEventListener('click', async () => {
-      const txId = Number(document.getElementById('mh-txid').value);
-      const { data } = await apiCall('GET', `/api/maintenance/history/search?txId=${encodeURIComponent(txId)}`);
-      if (data.ok && data.record) {
-        highlightState.txId = data.record.transactionId;
-        document.getElementById('mh-title').value = data.record.title;
-        document.getElementById('mh-action').value = data.record.action;
-      }
-      setStatus(data.ok, data.message, data.status);
-      await refreshState();
-    });
-
-    document.getElementById('form-hist-maint').addEventListener('submit', (e) => {
-      e.preventDefault();
-      postAction('/api/maintenance/history/edit', {
-        txId: Number(document.getElementById('mh-txid').value),
-        title: document.getElementById('mh-title').value,
-        action: document.getElementById('mh-action').value
-      });
-    });
-
-    document.getElementById('btn-hist-del').addEventListener('click', () => {
-      postAction('/api/maintenance/history/delete', { txId: Number(document.getElementById('mh-txid').value) });
-    });
-
-    document.getElementById('btn-stack-search').addEventListener('click', async () => {
-      const id = Number(document.getElementById('ms-search-id').value);
-      const { data } = await apiCall('GET', `/api/maintenance/stack/search?id=${encodeURIComponent(id)}`);
-      if (data.ok) {
-        highlightState.stackOffset = data.offset;
-        document.getElementById('ms-off').value = data.offset;
-      }
-      setStatus(data.ok, data.message, data.status);
-      await refreshState();
-    });
-
-    document.getElementById('form-stack-maint').addEventListener('submit', (e) => {
-      e.preventDefault();
-      postAction('/api/maintenance/stack/update', {
-        offset: Number(document.getElementById('ms-off').value),
-        bookId: Number(document.getElementById('ms-id').value)
-      });
-    });
-
-    document.getElementById('btn-queue-search').addEventListener('click', async () => {
-      const id = Number(document.getElementById('mq-search-id').value);
-      const { data } = await apiCall('GET', `/api/maintenance/queue/search?id=${encodeURIComponent(id)}`);
-      if (data.ok) {
-        highlightState.queueOffset = data.offset;
-        document.getElementById('mq-off').value = data.offset;
-      }
-      setStatus(data.ok, data.message, data.status);
-      await refreshState();
-    });
-
-    document.getElementById('form-queue-maint').addEventListener('submit', (e) => {
-      e.preventDefault();
-      postAction('/api/maintenance/queue/update', {
-        offset: Number(document.getElementById('mq-off').value),
-        bookId: Number(document.getElementById('mq-id').value)
-      });
-    });
-
-    try {
-      applyCleanMode(localStorage.getItem('smartlibrary_clean_ui') === '1', false);
-    } catch (_) {}
 
     refreshState();
   </script>
