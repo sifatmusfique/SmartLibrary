@@ -1,4 +1,4 @@
-# Smart Library Management System — CSE 2103 (Group C)
+# Smart Library Management System — CSE 2103 (Group C Section G)
 
 **Student IDs:** `252311282`, `252311284`, `252311285`
 
